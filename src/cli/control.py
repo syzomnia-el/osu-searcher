@@ -86,10 +86,7 @@ class Control:
         self.pause()
 
     def flush(self) -> None:
-        self.__config = Configuration()
-        while self.__config.path is None:
-            self.set_path()
-        self.__song_list = SongList(self.__config.path)
+        self.config = Configuration()
 
     def list(self) -> None:
         self.print_list(self.__song_list)
