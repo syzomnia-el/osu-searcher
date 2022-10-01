@@ -72,7 +72,6 @@ class Control:
     def check(self) -> None:
         self.flush()
         self.print_list(self.__song_list.check())
-        self.pause()
 
     def exit(self) -> None:
         self.clear_screen()
@@ -83,13 +82,16 @@ class Control:
             print('keyword:')
             key = input()
         self.print_list(self.__song_list.find(key))
-        self.pause()
 
     def flush(self) -> None:
         self.config = Configuration()
 
     def list(self) -> None:
         self.print_list(self.__song_list)
+
+    def path(self) -> None:
+        self.set_path()
+        self.flush()
 
     def print_path(self) -> None:
         print(f'path: {self.__config.path}')
@@ -102,16 +104,12 @@ class Control:
         if args != 'q':
             self.__config.path = args
 
-    def path(self) -> None:
-        self.set_path()
-        self.flush()
-
-    @staticmethod
-    def print_list(song_list: SongList) -> None:
+    def print_list(self, song_list: SongList) -> None:
         print('list:')
         for i in song_list:
             print(i)
         print(f'total: {len(song_list)}')
+        self.pause()
 
     @staticmethod
     def clear_screen() -> None:
