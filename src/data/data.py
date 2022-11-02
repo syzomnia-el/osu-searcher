@@ -9,11 +9,16 @@ class Song:
     __author: str
     __name: str
 
+    def __init__(self, sid: str = '', author: str = '', name: str = '') -> None:
+        self.__sid = sid
+        self.__author = author
+        self.__name = name
+
     def __str__(self) -> str:
         return self.to_dict().__str__()
 
     def __hash__(self) -> int:
-        return hash(self.sid)
+        return hash(self.__sid)
 
     def __eq__(self, other) -> bool:
         return self.__sid == other.__sid
@@ -78,8 +83,8 @@ class SongList(List[Song]):
                 return True
         return False
 
-    def to_list(self) -> List[Dict[str, str]]:
-        return [i.to_dict() for i in self]
+    def to_list(self) -> List[Song]:
+        return [i for i in self]
 
     def find(self, key: str = '') -> NewType('SongList', List[Song]):
         result = SongList()

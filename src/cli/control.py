@@ -13,7 +13,7 @@ class Control:
     __song_list: SongList
     __commands: Dict[str, Any]
 
-    def __new__(cls) -> NewType('Control', object):
+    def __new__(cls) -> NewType('Control', Any):
         if not cls.__instance:
             cls.__instance = super(Control, cls).__new__(cls)
         return cls.__instance
