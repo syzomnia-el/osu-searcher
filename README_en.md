@@ -22,7 +22,7 @@ startup.
 
 - Clone the repository:
   ```bash
-  git clone https://github.com/syzomnia-el/osu-searcher
+  git clone https://github.com/syzomnia-el/osu-searcher.git
   ```
 - You can also download the source code as a ZIP file.
 

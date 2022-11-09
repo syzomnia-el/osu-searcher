@@ -21,7 +21,7 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 
 - 使用以下命令将本仓库复制到本地：
   ```bash
-  git clone https://github.com/syzomnia-el/osu-searcher
+  git clone https://github.com/syzomnia-el/osu-searcher.git
   ```
 - 你也可以通过下载压缩包来获取。
 

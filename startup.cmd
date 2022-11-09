@@ -1,5 +1,5 @@
 @echo off
 cd /d "%cd%/src" || exit
-py main.py
+python main.py
 cd ../
 @echo on
