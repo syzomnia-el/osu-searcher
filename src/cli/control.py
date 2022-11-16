@@ -14,7 +14,7 @@ class Control:
     __commands: Dict[str, Any]
 
     def __new__(cls) -> NewType('Control', Any):
-        if not cls.__instance:
+        if cls.__instance is None:
             cls.__instance = super(Control, cls).__new__(cls)
         return cls.__instance
 

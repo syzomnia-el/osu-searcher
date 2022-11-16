@@ -21,7 +21,7 @@ class Configuration:
 
     @property
     def path(self) -> str:
-        return self.__config['path']
+        return self.__config.get('path', None)
 
     @path.setter
     def path(self, path: str) -> None:
