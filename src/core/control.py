@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from typing import Callable, NoReturn, Self
+from typing import Callable, NoReturn
 
 from config import Config
 from model import Beatmap, BeatmapManager
@@ -32,7 +32,7 @@ class Control:
 
     _config: Config
     _beatmap_manager: BeatmapManager
-    _instance: Self = None
+    _instance: 'Control' = None
     _parser: Parser = CommandParser()
 
     def __new__(cls) -> 'Control':
@@ -101,6 +101,11 @@ class Control:
         """
         self.flush()
         self._print_beatmaps(self.beatmap_manager.check())
+
+    def exit(self) -> None:
+        """ Exits the program. """
+        self.clear_screen()
+        sys.exit(0)
 
     def find(self, key: str = '') -> None:
         """
@@ -206,8 +211,3 @@ class Control:
     def pause() -> None:
         """ Pauses the program until the user presses the Enter key. """
         input('Press Enter to continue . . .')
-
-    @staticmethod
-    def exit() -> None:
-        """ Exits the program. """
-        sys.exit(0)

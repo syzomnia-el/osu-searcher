@@ -16,7 +16,7 @@ startup.
 
 ## Dependency
 
-- [Python 3.11](https://www.python.org/downloads) or later
+- [Python 3.10](https://www.python.org/downloads) or later
 
 ## Development
 
@@ -27,10 +27,14 @@ startup.
 
 ## Usage
 
-1. Go to the directory of osu!searcher.
+1. Run the `main.py` file:
+   ```bash
+   python <your_dir>/main.py
+   ```
 2. Run the`startup.cmd`(or`startup.sh`) script.
-3. When using it for the first time, you need to input the **absolute** path of the folder where your beatmaps are
-   saved.
+
+> When using it for the first time, you need to input the **absolute** path of the folder where your beatmaps are
+> saved.
 
 ## Command
 

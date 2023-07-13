@@ -15,20 +15,24 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 
 ## 依赖
 
-- [Python 3.11](https://www.python.org/downloads) 或更高版本
+- [Python 3.10](https://www.python.org/downloads) 或更高版本
 
 ## 开发
 
-- 使用以下命令将本仓库复制到本地：
+- 将本仓库复制到本地：
   ```bash
   git clone https://github.com/syzomnia-el/osu-searcher.git
   ```
 
 ## 使用
 
-1. 打开 osu!searcher 的所在目录。
-2. 运行 `startup.cmd`（或 `startup.sh`）脚本。
-3. 首次使用时，需要先输入谱面所在文件夹的**绝对路径**。
+1. 运行 `main.py` 文件：
+   ```bash
+   python <your_dir>/main.py
+   ```
+2. 或者直接运行 `startup.cmd`（或 `startup.sh`）脚本。
+
+> 首次使用时，需要先输入谱面所在文件夹的**绝对路径**。
 
 ## 命令
 
