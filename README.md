@@ -13,17 +13,16 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 - [x] 检查重复的谱面
 - [ ] 对特定条件，如谱面编号、歌名、艺术家、谱师等，按关键字筛选谱面
 
-## 要求
+## 依赖
 
-- [Python 3.7](https://www.python.org/downloads) 或更高版本
+- [Python 3.11](https://www.python.org/downloads) 或更高版本
 
-## 下载
+## 开发
 
 - 使用以下命令将本仓库复制到本地：
   ```bash
   git clone https://github.com/syzomnia-el/osu-searcher.git
   ```
-- 你也可以通过下载压缩包来获取。
 
 ## 使用
 
@@ -39,7 +38,7 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 | exit                 | 退出 osu!searcher |
 | find &lt;keyword&gt; | 按关键词筛选谱面        |
 | flush                | 刷新谱面信息缓存        |
-| list                 | 查看所有本地谱面        |
+| list                 | 列出所有本地谱面        |
 | path                 | 修改谱面存储路径        |
 
 ## 许可证
