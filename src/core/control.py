@@ -39,18 +39,18 @@ class Control:
         """ Overrides the __new__ method to implement the singleton pattern. """
         if cls._instance is None:
             cls._instance = super(Control, cls).__new__(cls)
-            cls.COMMANDS = {
-                'check': cls.check,
-                'exit': cls.exit,
-                'find': cls.find,
-                'flush': cls.flush,
-                'list': cls.list_,
-                'path': cls.path
-            }
         return cls._instance
 
     def __init__(self) -> None:
         """ Initializes the class and load the config. """
+        self.COMMANDS = {
+            'check': self.check,
+            'exit': self.exit,
+            'find': self.find,
+            'flush': self.flush,
+            'list': self.list_,
+            'path': self.path
+        }
         self.config = Config()
 
     @property
@@ -65,7 +65,7 @@ class Control:
         self._config.load()
 
         # If the path is not set, ask the user to input.
-        while self._config.path is None:
+        while not self._config.path:
             self._set_path()
         self.beatmap_manager = BeatmapManager()
 
@@ -176,12 +176,12 @@ class Control:
         Parameters:
             beatmaps: The beatmaps to print.
         """
-        label_sid, label_artist, label_name = tuple(beatmaps[0].__dict__.keys())
-        print(f'{label_sid:<7} | {label_artist:<60} | {label_name}')
-        print(f'{"":-<130}')
+        label_sid, label_artist, label_name = Beatmap().__dict__.keys()
+        print(f'{label_sid:<8} | {label_artist:<42} | {label_name}')
+        print(f'{"":-<100}')
 
         for i in beatmaps:
-            print(f'{i.sid:<7} | {i.artist:<60} | {i.name}')
+            print(f'{i.sid:<8} | {i.artist:<42.42} | {i.name}')
 
         print(f'total: {len(beatmaps)}')
         self.pause()

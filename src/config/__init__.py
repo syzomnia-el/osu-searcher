@@ -24,7 +24,7 @@ class Config:
     Attributes:
         CONFIG_FILE: The path to the config file.
     """
-    CONFIG_FILE: str = f'{sys.path[0]}/../config.json'
+    CONFIG_FILE: str = f'{sys.path[0]}/config.json'
     _config: ConfigType
 
     def load(self) -> None:

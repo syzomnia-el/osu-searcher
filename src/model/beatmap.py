@@ -52,6 +52,10 @@ class BeatmapManager:
     """ The class provides API to beatmap management. """
     _beatmaps: list[Beatmap]
 
+    def __init__(self) -> None:
+        """ Initializes the beatmap manager. """
+        self._beatmaps = []
+
     @property
     def beatmaps(self) -> list[Beatmap]:
         """ Returns the beatmaps. """
@@ -70,11 +74,11 @@ class BeatmapManager:
         for i in os.listdir(path):
             try:
                 beatmap = self._parse_beatmap(i)
-                self.beatmaps.append(beatmap)
+                self._beatmaps.append(beatmap)
             except ValueError:
                 pass
 
-    def filter(self, key: str = '') -> beatmaps[Beatmap]:
+    def filter(self, key: str = '') -> list[Beatmap]:
         """
         Returns the beatmaps with the keyword. The keyword is case-insensitive.
         If the keyword is an empty string, returns all the beatmaps.
@@ -82,16 +86,16 @@ class BeatmapManager:
         Parameters:
             key: The keyword to filter.
         """
-        return [i for i in self.beatmaps if key in i]
+        return [i for i in self._beatmaps if key in i]
 
-    def check(self) -> beatmaps[Beatmap]:
+    def check(self) -> list[Beatmap]:
         """
         Checks whether the beatmaps have duplicated sid.
 
         Returns:
             The beatmaps with the duplicated sid.
         """
-        return [beatmap for beatmap, count in Counter(self.beatmaps).items() if count > 1]
+        return [beatmap for beatmap, count in Counter(self._beatmaps).items() if count > 1]
 
     @staticmethod
     def _parse_beatmap(filename: str) -> Beatmap:
