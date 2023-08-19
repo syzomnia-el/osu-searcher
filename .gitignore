@@ -1,5 +1,6 @@
 # Project
 config.json
+test/**/test*.py
 
 # JetBrains
 .idea/

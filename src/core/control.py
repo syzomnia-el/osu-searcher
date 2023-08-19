@@ -5,8 +5,7 @@ from typing import Callable, NoReturn
 
 from config import Config
 from model import Beatmap, BeatmapManager
-from ui import Parser
-from ui.cli import CommandParser
+from ui.cli import BeatmapPrinter, CommandParser
 
 __all__ = ['Control']
 
@@ -33,7 +32,8 @@ class Control:
     _config: Config
     _beatmap_manager: BeatmapManager
     _instance: 'Control' = None
-    _parser: Parser = CommandParser()
+    _parser = CommandParser()
+    _printer = BeatmapPrinter()
 
     def __new__(cls) -> 'Control':
         """ Overrides the __new__ method to implement the singleton pattern. """
@@ -171,24 +171,12 @@ class Control:
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
         """
-        Prints the beatmaps as below:
-
-            sid   | artist   | name  \n
-            \u005c-------------------------\n
-            <sid> | <artist> | <name>\n
-            total: <total_number>
+        Prints the beatmaps.
 
         Parameters:
             beatmaps: The beatmaps to print.
         """
-        label_sid, label_artist, label_name = Beatmap().__dict__.keys()
-        print(f'{label_sid:<8} | {label_artist:<42} | {label_name}')
-        print(f'{"":-<100}')
-
-        for i in beatmaps:
-            print(f'{i.sid:<8} | {i.artist:<42.42} | {i.name}')
-
-        print(f'total: {len(beatmaps)}')
+        self._printer.print(beatmaps)
         self.pause()
 
     def _set_path(self) -> None:
