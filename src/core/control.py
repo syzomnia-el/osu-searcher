@@ -48,7 +48,7 @@ class Control:
             'exit': self.exit,
             'find': self.find,
             'flush': self.flush,
-            'list': self.list_,
+            'list': self.list_all,
             'path': self.path
         }
         self.config = Config()
@@ -129,7 +129,7 @@ class Control:
         """ Flushes the beatmap data cache. """
         self.config = Config()
 
-    def list_(self) -> None:
+    def list_all(self) -> None:
         """ Lists all the beatmaps. """
         self._print_beatmaps(self.beatmap_manager.beatmaps)
 

@@ -31,7 +31,7 @@ class CommandParser(Parser):
         input_args = input('>>> ').split()
         args = self._parser.parse_args(input_args)
         key = args.key
-        arg = args.args[0] if len(args.args) > 1 else ''
+        arg = args.args[0] if len(args.args) > 0 else ''
         return Command(key, arg)
 
 
