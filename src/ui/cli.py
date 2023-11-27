@@ -6,7 +6,11 @@ from ui import Parser, Printer
 
 __all__ = ['CommandParser', 'BeatmapPrinter']
 
-Command = NamedTuple('Command', [('key', str), ('args', list[str])])
+
+class Command(NamedTuple):
+    """ The class represents a command. """
+    key: str
+    args: list[str]
 
 
 class CommandParser(Parser):
@@ -26,20 +30,22 @@ class CommandParser(Parser):
         self._parser.add_argument('key', type=str, help='The command key.')
         self._parser.add_argument('args', nargs='*', help='The command arguments.')
 
+    def input(self) -> str:
+        """ Get the user input. """
+        return input('>>> ').strip()
+
     def parse(self) -> Command:
         """ Parse the user input and return the command. """
-        input_args = input('>>> ').split()
+        input_args = self.input().split()
         args = self._parser.parse_args(input_args)
-        key = args.key
-        arg = args.args[0] if len(args.args) > 0 else ''
-        return Command(key, arg)
+        return Command(args.key, args.args)
 
 
 class BeatmapPrinter(Printer):
     """ The class implements the printer for the command line interface. """
     _WIDTH_SID = 8
     _WIDTH_ARTIST = 42
-    _PARTING_LINE = '-' * 100
+    _PARTING_LINE = '-' * (_WIDTH_SID + _WIDTH_ARTIST + 10)
 
     def print(self, beatmaps: list) -> None:
         """
@@ -51,13 +57,13 @@ class BeatmapPrinter(Printer):
             ...
             total: <total_number>
 
-        Parameters:
+        Args:
             beatmaps: The beatmaps to print.
         """
-        print(f'{"sid":<{self._WIDTH_SID}} | {"artist":<{self._WIDTH_ARTIST}} | {"name"}')
-        print(f'{self._PARTING_LINE}')
+        print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
+        print(self._PARTING_LINE)
 
-        for i in beatmaps:
+        for i in sorted(beatmaps):
             print(f'{i.sid:<{self._WIDTH_SID}} | {i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | {i.name}')
 
         print(f'total: {len(beatmaps)}')

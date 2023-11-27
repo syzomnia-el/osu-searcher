@@ -15,7 +15,7 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 
 ## 依赖
 
-- [Python 3.10](https://www.python.org/downloads) 或更高版本
+- [Python 3.12](https://www.python.org/downloads) 或更高版本
 
 ## 开发
 

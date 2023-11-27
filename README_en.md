@@ -5,6 +5,7 @@
 ## Introduction
 
 osu!searcher is a local beatmap searcher for [osu!](https://osu.ppy.sh), quick for downloaded beatmap searching without
+the
 startup.
 
 ## Feature
@@ -16,7 +17,7 @@ startup.
 
 ## Dependency
 
-- [Python 3.10](https://www.python.org/downloads) or later
+- [Python 3.12](https://www.python.org/downloads) or later
 
 ## Development
 

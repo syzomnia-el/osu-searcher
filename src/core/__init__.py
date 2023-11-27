@@ -6,13 +6,12 @@ __all__ = ['OSSApplication']
 
 class OSSApplication:
     """ OSSApplication is the main class of the application. """
-    _control: Control
-
-    def __init__(self) -> None:
-        self._control = Control()
+    _control: Control = Control()
 
     def run(self):
+        """ Run the application."""
         self._control.run()
 
     def exit(self):
+        """ Exit the application."""
         self._control.exit()

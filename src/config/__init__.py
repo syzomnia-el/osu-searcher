@@ -25,30 +25,40 @@ class Config:
         CONFIG_FILE: The path to the config file.
     """
     CONFIG_FILE: str = f'{sys.path[0]}/config.json'
-    _config: ConfigType
+    _config: Optional[ConfigType] = None
 
     def load(self) -> None:
         """ Loads the config from the file. """
-        try:
-            with open(self.CONFIG_FILE, 'r') as f:
-                self._config = json.load(f)
-        except (IOError, JSONDecodeError):
-            self.reset()
+        self._read_config()
 
     def reset(self) -> None:
         """ Resets the config. """
         self._config = {'path': None}
-        with open(self.CONFIG_FILE, 'w') as f:
-            json.dump(self._config, f)
+        self._write_config()
 
     @property
-    def path(self) -> str:
+    def path(self) -> Optional[str]:
         """ Returns path in the config. """
         return self._config.get('path', None)
 
     @path.setter
     def path(self, path: str) -> None:
         """ Sets path in the config. """
+        if self._config is None:
+            self._config = {}
+
         self._config['path'] = path
+        self._write_config()
+
+    def _read_config(self) -> None:
+        """ Reads the config from the file. """
+        try:
+            with open(self.CONFIG_FILE, 'r') as f:
+                self._config = json.load(f)
+        except (IOError, JSONDecodeError):
+            self.reset()
+
+    def _write_config(self) -> None:
+        """ Writes the config to the file. """
         with open(self.CONFIG_FILE, 'w') as f:
             json.dump(self._config, f)

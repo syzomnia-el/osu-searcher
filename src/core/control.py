@@ -31,15 +31,8 @@ class Control:
 
     _config: Config
     _beatmap_manager: BeatmapManager
-    _instance: 'Control' = None
     _parser = CommandParser()
     _printer = BeatmapPrinter()
-
-    def __new__(cls) -> 'Control':
-        """ Overrides the __new__ method to implement the singleton pattern. """
-        if cls._instance is None:
-            cls._instance = super(Control, cls).__new__(cls)
-        return cls._instance
 
     def __init__(self) -> None:
         """ Initializes the class and load the config. """
@@ -75,20 +68,10 @@ class Control:
         return self._beatmap_manager
 
     @beatmap_manager.setter
-    def beatmap_manager(self, beatmaps: BeatmapManager) -> None:
+    def beatmap_manager(self, beatmap_manager: BeatmapManager) -> None:
         """ Sets the beatmap manager and load the beatmaps. """
-        self._beatmap_manager = BeatmapManager() if beatmaps is None else beatmaps
+        self._beatmap_manager = BeatmapManager() if beatmap_manager is None else beatmap_manager
         self._beatmap_manager.load(self.config.path)
-
-    def run(self) -> NoReturn:
-        """ The main entry point of the program. Loop until the user inputs `exit`, or an error occurs. """
-        try:
-            while True:
-                self.clear_screen()
-                self._prompt()
-                self._parse_command()
-        except IOError:
-            sys.exit(1)
 
     def check(self) -> None:
         """
@@ -117,12 +100,12 @@ class Control:
             <sid> | <artist> | <name>\n
             total: <total_number>
 
-        Parameters:
+        Args:
             key: The keyword to find.
         """
-        if key == '':
+        if not key:
             print('keyword:')
-            key = input()
+            key = self._parser.input()
         self._print_beatmaps(self.beatmap_manager.filter(key))
 
     def flush(self) -> None:
@@ -137,6 +120,14 @@ class Control:
         """ Modifies the saved path of the beatmaps. """
         self._set_path()
         self.flush()
+
+    def run(self) -> NoReturn:
+        """ The main entry point of the program. Loop until the user inputs `exit`, or an error occurs. """
+        try:
+            while True:
+                self._parse_command()
+        except IOError:
+            sys.exit(1)
 
     def _prompt(self) -> None:
         """
@@ -155,13 +146,18 @@ class Control:
 
     def _parse_command(self) -> None:
         """ Parses the command and executes the corresponding method. """
-        key, arg = self._parser.parse()
+        self.clear_screen()
+        self._prompt()
+
+        key, args = self._parser.parse()
         if key not in self.COMMANDS:
             return
+        if not args:
+            args = ['']
 
         method = self.COMMANDS[key]
         if key == 'find':
-            method(arg)
+            method(args[0])
         else:
             method()
 
@@ -173,7 +169,7 @@ class Control:
         """
         Prints the beatmaps.
 
-        Parameters:
+        Args:
             beatmaps: The beatmaps to print.
         """
         self._printer.print(beatmaps)
@@ -185,10 +181,10 @@ class Control:
         self._print_path()
         print('switch to (enter `q` to cancel):')
 
-        arg = input().strip().lower()
-        if arg == 'q':
+        command = self._parser.input().lower()
+        if command == 'q':
             return
-        self._config.path = arg
+        self._config.path = command
 
     @staticmethod
     def clear_screen() -> None:
@@ -198,4 +194,4 @@ class Control:
     @staticmethod
     def pause() -> None:
         """ Pauses the program until the user presses the Enter key. """
-        input('Press Enter to continue . . .')
+        input('Press Enter to continue ...')

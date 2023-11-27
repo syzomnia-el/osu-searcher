@@ -8,6 +8,11 @@ class Parser(metaclass=ABCMeta):
     """ The abstract class defines an interface how to parse the user input. """
 
     @abstractmethod
+    def input(self) -> str:
+        """ Gets the user input. """
+        pass
+
+    @abstractmethod
     def parse(self) -> object:
         """ Parses the user input. """
         pass
