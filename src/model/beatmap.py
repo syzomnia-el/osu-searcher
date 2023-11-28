@@ -40,15 +40,15 @@ class Beatmap:
 
     def __lt__(self, other: 'Beatmap') -> bool:
         """
-        Compares the sid of the beatmap with the other beatmap.
+        Compares the beatmap with the other beatmap.
 
         Args:
             other: The other beatmap to compare.
 
         Returns:
-            True if the sid of the beatmap is less than the sid of the other beatmap, otherwise False.
+            True if the name of the beatmap is less than the other beatmap, otherwise False.
         """
-        return int(self.sid) < int(other.sid)
+        return self.name.lower() < other.name.lower()
 
 
 @dataclass(frozen=True)
