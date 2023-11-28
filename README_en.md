@@ -5,8 +5,7 @@
 ## Introduction
 
 osu!searcher is a local beatmap searcher for [osu!](https://osu.ppy.sh), quick for downloaded beatmap searching without
-the
-startup.
+the startup.
 
 ## Feature
 
