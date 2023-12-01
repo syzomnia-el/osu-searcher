@@ -51,10 +51,15 @@ class Beatmap:
         return self.name.lower() < other.name.lower()
 
 
-@dataclass(frozen=True)
+@dataclass
 class BeatmapManager:
     """ The class provides API to beatmap management. """
-    beatmaps: list[Beatmap] = field(default_factory=list, repr=False)
+    _beatmaps: list[Beatmap] = field(default_factory=list, repr=False)
+
+    @property
+    def beatmaps(self) -> list[Beatmap]:
+        """ Returns the beatmaps. """
+        return self._beatmaps
 
     def load(self, path: str = None) -> None:
         """
@@ -66,10 +71,8 @@ class BeatmapManager:
         if not path or not os.path.exists(path):
             return
 
-        for i in os.listdir(path):
-            with contextlib.suppress(ValueError):
-                beatmap = self._parse_beatmap(i)
-                self.beatmaps.append(beatmap)
+        beatmap_rawdata = os.listdir(path)
+        self._beatmaps = sorted(self._parse_beatmap(i) for i in beatmap_rawdata)
 
     def filter(self, key: str = '') -> list[Beatmap]:
         """
@@ -105,6 +108,9 @@ class BeatmapManager:
         Returns:
             A Beatmap object parsed from the filename.
         """
-        tmp, name = filename.split(' - ', 1)
-        sid, artist = tmp.strip().split(' ', 1)
-        return Beatmap(sid, artist, name)
+        with contextlib.suppress(ValueError):
+            tmp, name = filename.split(' - ', 1)
+            sid, artist = tmp.strip().split(' ', 1)
+            return Beatmap(sid, artist, name)
+
+        return Beatmap()

@@ -63,7 +63,7 @@ class BeatmapPrinter(Printer):
         print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
         print(self._PARTING_LINE)
 
-        for i in sorted(beatmaps):
+        for i in beatmaps:
             print(f'{i.sid:<{self._WIDTH_SID}} | {i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | {i.name}')
 
         print(f'total: {len(beatmaps)}')
