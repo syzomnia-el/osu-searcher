@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import sys
 from json.decoder import JSONDecodeError
 from typing import Optional, TypedDict
 
-__all__ = ['Config']
+__all__ = ['ConfigManager']
 
 
-class ConfigType(TypedDict):
+class Config(TypedDict):
     """
     The class is a type hint of the config.
 
@@ -17,7 +18,7 @@ class ConfigType(TypedDict):
     path: Optional[str]
 
 
-class Config:
+class ConfigManager:
     """
     The class provides APIs to config management.
 
@@ -25,7 +26,7 @@ class Config:
         CONFIG_FILE: The path to the config file.
     """
     CONFIG_FILE: str = f'{sys.path[0]}/config.json'
-    _config: Optional[ConfigType] = None
+    _config: Optional[Config] = None
 
     def load(self) -> None:
         """ Loads the config from the file. """
@@ -38,12 +39,16 @@ class Config:
 
     @property
     def path(self) -> Optional[str]:
-        """ Returns path in the config. """
+        """ Returns the path in the config. """
         return self._config.get('path', None)
 
     @path.setter
     def path(self, path: str) -> None:
-        """ Sets path in the config. """
+        """ Sets the path in the config. """
+        if not path or not os.path.exists(path) or not os.path.isdir(path):
+            print(f'invalid path:`{path}`')
+            return
+
         if self._config is None:
             self._config = {}
 
@@ -56,6 +61,7 @@ class Config:
             with open(self.CONFIG_FILE, 'r') as f:
                 self._config = json.load(f)
         except (IOError, JSONDecodeError):
+            print('config file not found or invalid, reset the config.')
             self.reset()
 
     def _write_config(self) -> None:

@@ -3,7 +3,7 @@ import os
 import sys
 from typing import Callable, NoReturn
 
-from config import Config
+from config import ConfigManager
 from model import Beatmap, BeatmapManager
 from ui.cli import BeatmapPrinter, CommandParser
 
@@ -29,7 +29,7 @@ class Control:
     """
     COMMANDS: dict[str, Callable]
 
-    _config: Config
+    _config: ConfigManager
     _beatmap_manager: BeatmapManager
     _parser = CommandParser()
     _printer = BeatmapPrinter()
@@ -44,20 +44,23 @@ class Control:
             'list': self.list_all,
             'path': self.path
         }
-        self.config = Config()
+        self.config = ConfigManager()
 
     @property
-    def config(self) -> Config:
+    def config(self) -> ConfigManager:
         """ Returns the config. """
         return self._config
 
     @config.setter
-    def config(self, config: Config) -> None:
+    def config(self, config: ConfigManager) -> None:
         """ Sets the config and load the beatmaps. """
-        self._config = Config() if config is None else config
+        if not config or not isinstance(config, ConfigManager):
+            config = ConfigManager()
+
+        self._config = config
         self._config.load()
 
-        # If the path is not set, ask the user to input.
+        # If the path is not set, ask user to input.
         while not self._config.path:
             self._set_path()
         self.beatmap_manager = BeatmapManager()
@@ -70,12 +73,15 @@ class Control:
     @beatmap_manager.setter
     def beatmap_manager(self, beatmap_manager: BeatmapManager) -> None:
         """ Sets the beatmap manager and load the beatmaps. """
-        self._beatmap_manager = BeatmapManager() if beatmap_manager is None else beatmap_manager
+        if not beatmap_manager or not isinstance(beatmap_manager, BeatmapManager):
+            beatmap_manager = BeatmapManager()
+
+        self._beatmap_manager = beatmap_manager
         self._beatmap_manager.load(self.config.path)
 
     def check(self) -> None:
         """
-        Checks the duplicate beatmaps and lists the result as below:
+        Checks the duplicate beatmaps and prints the result as below.
 
             sid   | artist   | name  \n
             \u005c-------------------------\n
@@ -92,25 +98,25 @@ class Control:
 
     def find(self, key: str = '') -> None:
         """
-        Finds beatmaps by a keyword. If the keyword is an empty string, ask the user to input.
-        And then lists the result as below:
+        Finds beatmaps by a keyword and prints the result as below.
+        If the keyword is not given, ask the user to input.
 
             sid   | artist   | name  \n
             \u005c-------------------------\n
             <sid> | <artist> | <name>\n
             total: <total_number>
 
-        Args:
-            key: The keyword to find.
+       :param key: The keyword to find.
         """
         if not key:
             print('keyword:')
             key = self._parser.input()
+
         self._print_beatmaps(self.beatmap_manager.filter(key))
 
     def flush(self) -> None:
-        """ Flushes the beatmap data cache. """
-        self.config = Config()
+        """ Flushes the config and beatmap data cache. """
+        self.config = ConfigManager()
 
     def list_all(self) -> None:
         """ Lists all the beatmaps. """
@@ -131,7 +137,7 @@ class Control:
 
     def _prompt(self) -> None:
         """
-        Prints the prompt as below:
+        Prints the prompt as below.
 
         path: <path>\n
         command:\n
@@ -149,29 +155,27 @@ class Control:
         self.clear_screen()
         self._prompt()
 
+        # parse the command from the user input.
         key, args = self._parser.parse()
         if key not in self.COMMANDS:
             return
         if not args:
             args = ['']
 
+        # execute the corresponding method.
         method = self.COMMANDS[key]
-        if key == 'find':
-            method(args[0])
-        else:
-            method()
+        match method:
+            case 'find':
+                method(args[0])
+            case _:
+                method()
 
     def _print_path(self) -> None:
         """ Prints the path of the beatmaps. """
         print(f'path: {self.config.path}')
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
-        """
-        Prints the beatmaps.
-
-        Args:
-            beatmaps: The beatmaps to print.
-        """
+        """ Prints the beatmaps. """
         self._printer.print(beatmaps)
         self.pause()
 
@@ -194,4 +198,4 @@ class Control:
     @staticmethod
     def pause() -> None:
         """ Pauses the program until the user presses the Enter key. """
-        input('Press Enter to continue ...')
+        input('Press Enter to continue...')

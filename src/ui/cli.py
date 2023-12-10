@@ -2,6 +2,7 @@
 from argparse import ArgumentParser
 from typing import NamedTuple
 
+from model import Beatmap
 from ui import Parser, Printer
 
 __all__ = ['CommandParser', 'BeatmapPrinter']
@@ -27,8 +28,18 @@ class CommandParser(Parser):
         User input format: <key> [arg1] [arg2] ...
         """
         self._parser = ArgumentParser()
-        self._parser.add_argument('key', type=str, help='The command key.')
-        self._parser.add_argument('args', nargs='*', help='The command arguments.')
+        self._parser.add_argument(
+            'key',
+            type=str,
+            help='The command key.',
+            choices=['check', 'exit', 'find', 'flush', 'list', 'path']
+        )
+        self._parser.add_argument(
+            'args',
+            nargs='*',
+            help='The command arguments.'
+        )
+        self._parser.error = self._handle_error
 
     def input(self) -> str:
         """ Get the user input. """
@@ -40,6 +51,11 @@ class CommandParser(Parser):
         args = self._parser.parse_args(input_args)
         return Command(args.key, args.args)
 
+    @staticmethod
+    def _handle_error(message: str) -> Command:
+        """ Handle the error message. """
+        return Command('', [''])
+
 
 class BeatmapPrinter(Printer):
     """ The class implements the printer for the command line interface. """
@@ -47,9 +63,9 @@ class BeatmapPrinter(Printer):
     _WIDTH_ARTIST = 42
     _PARTING_LINE = '-' * (_WIDTH_SID + _WIDTH_ARTIST + 10)
 
-    def print(self, beatmaps: list) -> None:
+    def print(self, beatmaps: list[Beatmap]) -> None:
         """
-        Prints the beatmaps as below:
+        Prints the beatmaps as below.
 
             sid | artist | name \n
             \u005c-------------------------\n
@@ -57,9 +73,12 @@ class BeatmapPrinter(Printer):
             ...
             total: <total_number>
 
-        Args:
-            beatmaps: The beatmaps to print.
+        :param beatmaps: The beatmaps to print.
         """
+        if not isinstance(beatmaps, list) or not all(isinstance(i, Beatmap) for i in beatmaps):
+            print('Invalid beatmaps.')
+            return
+
         print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
         print(self._PARTING_LINE)
 
