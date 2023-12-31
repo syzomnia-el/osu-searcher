@@ -164,7 +164,7 @@ class Control:
 
         # execute the corresponding method.
         method = self.COMMANDS[key]
-        match method:
+        match key:
             case 'find':
                 method(args[0])
             case _:
