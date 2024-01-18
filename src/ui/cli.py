@@ -52,7 +52,7 @@ class CommandParser(Parser):
         return Command(args.key, args.args)
 
     @staticmethod
-    def _handle_error(message: str) -> Command:
+    def _handle_error(_) -> Command:
         """ Handle the error message. """
         return Command('', [''])
 
