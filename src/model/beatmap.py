@@ -108,3 +108,4 @@ class BeatmapManager:
             return Beatmap(sid, artist.strip(), name)
         except ValueError:
             print(f'Invalid beatmap filename: {filename}')
+            return Beatmap()
