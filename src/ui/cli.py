@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 from model import Beatmap
 from ui import Parser, Printer
@@ -10,8 +10,8 @@ __all__ = ['CommandParser', 'BeatmapPrinter']
 
 class Command(NamedTuple):
     """ The class represents a command. """
-    key: str
-    args: list[str]
+    key: str = ''
+    args: Optional[list[str]] = None
 
 
 class CommandParser(Parser):
@@ -54,7 +54,7 @@ class CommandParser(Parser):
     @staticmethod
     def _handle_error(_) -> Command:
         """ Handle the error message. """
-        return Command('', [''])
+        return Command()
 
 
 class BeatmapPrinter(Printer):
