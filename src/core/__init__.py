@@ -10,8 +10,12 @@ class OSSApplication:
 
     def run(self):
         """ Run the application."""
-        self._control.run()
+        while True:
+            try:
+                self._control.run()
+            except IOError:
+                self._control.exit(1)
 
-    def exit(self):
+    def shutdown(self):
         """ Exit the application."""
-        self._control.exit()
+        self._control.exit(0)

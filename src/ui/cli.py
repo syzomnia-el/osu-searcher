@@ -1,11 +1,36 @@
 # -*- coding: utf-8 -*-
+import os
 from argparse import ArgumentParser
-from typing import NamedTuple, Optional
+from typing import NamedTuple, Optional, override
 
 from model import Beatmap
-from ui import Parser, Printer
+from ui import IOUtils, Parser, Printer
 
-__all__ = ['CommandParser', 'BeatmapPrinter']
+__all__ = ['CLIUtils', 'CommandParser', 'BeatmapPrinter']
+
+
+class CLIUtils(IOUtils):
+    """ The class implements the utility for the command line interface. """
+
+    def __new__(cls):
+        """ The class cannot be instantiated. """
+        raise NotImplementedError('The class cannot be instantiated.')
+
+    @staticmethod
+    @override
+    def input() -> str:
+        """ Get the user input. """
+        return input('>>> ').strip()
+
+    @staticmethod
+    def clear_screen() -> None:
+        """ Clears the screen. """
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    @staticmethod
+    def pause() -> None:
+        """ Pauses the program until the user presses the Enter key. """
+        input('Press Enter to continue...')
 
 
 class Command(NamedTuple):
@@ -21,40 +46,33 @@ class CommandParser(Parser):
     """
     _parser: ArgumentParser
 
-    def __init__(self):
+    def __new__(cls):
         """
         Initialize the parser.
 
         User input format: <key> [arg1] [arg2] ...
         """
-        self._parser = ArgumentParser()
-        self._parser.add_argument(
+        cls._parser = ArgumentParser()
+        cls._parser.add_argument(
             'key',
             type=str,
             help='The command key.',
             choices=['check', 'exit', 'find', 'flush', 'list', 'path']
         )
-        self._parser.add_argument(
+        cls._parser.add_argument(
             'args',
             nargs='*',
             help='The command arguments.'
         )
-        self._parser.error = self._handle_error
+        cls._parser.error = (lambda _: Command())
+        return super().__new__(cls)
 
-    def input(self) -> str:
-        """ Get the user input. """
-        return input('>>> ').strip()
-
+    @override
     def parse(self) -> Command:
         """ Parse the user input and return the command. """
-        input_args = self.input().split()
+        input_args = CLIUtils.input().split()
         args = self._parser.parse_args(input_args)
         return Command(args.key, args.args)
-
-    @staticmethod
-    def _handle_error(_) -> Command:
-        """ Handle the error message. """
-        return Command()
 
 
 class BeatmapPrinter(Printer):
@@ -63,6 +81,7 @@ class BeatmapPrinter(Printer):
     _WIDTH_ARTIST = 42
     _PARTING_LINE = '-' * (_WIDTH_SID + _WIDTH_ARTIST + 10)
 
+    @override
     def print(self, beatmaps: list[Beatmap]) -> None:
         """
         Prints the beatmaps as below.

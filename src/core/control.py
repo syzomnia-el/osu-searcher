@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 from typing import Callable, NoReturn
 
 from config import ConfigManager
 from model import Beatmap, BeatmapManager
-from ui.cli import BeatmapPrinter, CommandParser
+from ui import Parser, Printer
+from ui.cli import BeatmapPrinter, CLIUtils, CommandParser
 
 __all__ = ['Control']
+
+_io = CLIUtils
 
 
 class Control:
@@ -22,46 +23,45 @@ class Control:
         - list: List all the beatmaps.
         - path: Modify the saved path of the beatmaps.
 
-    Attributes:
-        COMMANDS: The mapping of commands to their corresponding methods.
-        config: The config of the program.
-        beatmap_manager: The manager of the osu! beatmaps.
+    Methods:
+        run: The main entry point of the program. Loop until the user inputs `exit`, or an error occurs.
+        shutdown: Exits the program.
     """
-    COMMANDS: dict[str, Callable]
+    _COMMANDS: dict[str, Callable]
 
-    _config: ConfigManager
+    _config_manager: ConfigManager
     _beatmap_manager: BeatmapManager
-    _parser = CommandParser()
-    _printer = BeatmapPrinter()
+    _parser: Parser = CommandParser()
+    _printer: Printer = BeatmapPrinter()
 
     def __init__(self) -> None:
         """ Initializes the class and load the config. """
-        self.COMMANDS = {
-            'check': self.check,
+        self._COMMANDS = {
+            'check': self._check,
             'exit': self.exit,
-            'find': self.find,
-            'flush': self.flush,
-            'list': self.list_all,
-            'path': self.path
+            'find': self._find,
+            'flush': self._flush,
+            'list': self._list,
+            'path': self._path
         }
-        self.config = ConfigManager()
+        self.config_manager = ConfigManager()
 
     @property
-    def config(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:
         """ Returns the config. """
-        return self._config
+        return self._config_manager
 
-    @config.setter
-    def config(self, config: ConfigManager) -> None:
+    @config_manager.setter
+    def config_manager(self, config_manager: ConfigManager) -> None:
         """ Sets the config and load the beatmaps. """
-        if not config or not isinstance(config, ConfigManager):
-            config = ConfigManager()
+        if not config_manager or not isinstance(config_manager, ConfigManager):
+            config_manager = ConfigManager()
 
-        self._config = config
-        self._config.load()
+        self._config_manager = config_manager
+        self._config_manager.load()
 
         # If the path is not set, ask user to input.
-        while not self._config.path:
+        while not self._config_manager.config.path:
             self._set_path()
         self.beatmap_manager = BeatmapManager()
 
@@ -77,9 +77,19 @@ class Control:
             beatmap_manager = BeatmapManager()
 
         self._beatmap_manager = beatmap_manager
-        self._beatmap_manager.load(self.config.path)
+        self._beatmap_manager.load(self.config_manager.config.path)
 
-    def check(self) -> None:
+    def run(self) -> NoReturn:
+        """ The main entry point of the program. """
+        self._parse_command()
+
+    @staticmethod
+    def exit(code: int = 0) -> NoReturn:
+        """ Exits the program. """
+        _io.clear_screen()
+        _io.exit(code)
+
+    def _check(self) -> None:
         """
         Checks the duplicate beatmaps and prints the result as below.
 
@@ -88,15 +98,10 @@ class Control:
             <sid> | <artist> | <name>\n
             total: <total_number>
         """
-        self.flush()
+        self._flush()
         self._print_beatmaps(self.beatmap_manager.check())
 
-    def exit(self) -> None:
-        """ Exits the program. """
-        self.clear_screen()
-        sys.exit(0)
-
-    def find(self, key: str = '') -> None:
+    def _find(self, key: str = '') -> None:
         """
         Finds beatmaps by a keyword and prints the result as below.
         If the keyword is not given, ask the user to input.
@@ -110,30 +115,22 @@ class Control:
         """
         if not key:
             print('keyword:')
-            key = self._parser.input()
+            key = _io.input()
 
         self._print_beatmaps(self.beatmap_manager.filter(key))
 
-    def flush(self) -> None:
+    def _flush(self) -> None:
         """ Flushes the config and beatmap data cache. """
-        self.config = ConfigManager()
+        self.config_manager = ConfigManager()
 
-    def list_all(self) -> None:
+    def _list(self) -> None:
         """ Lists all the beatmaps. """
         self._print_beatmaps(self.beatmap_manager.beatmaps)
 
-    def path(self) -> None:
+    def _path(self) -> None:
         """ Modifies the saved path of the beatmaps. """
         self._set_path()
-        self.flush()
-
-    def run(self) -> NoReturn:
-        """ The main entry point of the program. Loop until the user inputs `exit`, or an error occurs. """
-        try:
-            while True:
-                self._parse_command()
-        except IOError:
-            sys.exit(1)
+        self._flush()
 
     def _prompt(self) -> None:
         """
@@ -146,24 +143,24 @@ class Control:
         self._print_path()
         print('command:')
         print('-', end=' ')
-        for i in self.COMMANDS.keys():
+        for i in self._COMMANDS.keys():
             print(f'{i} <keyword>' if i == 'find' else i, end=' | ')
         print()
 
     def _parse_command(self) -> None:
         """ Parses the command and executes the corresponding method. """
-        self.clear_screen()
+        _io.clear_screen()
         self._prompt()
 
         # parse the command from the user input.
         key, args = self._parser.parse()
-        if key not in self.COMMANDS:
+        if key not in self._COMMANDS:
             return
         if not args:
             args = ['']
 
         # execute the corresponding method.
-        method = self.COMMANDS[key]
+        method = self._COMMANDS[key]
         match key:
             case 'find':
                 method(args[0])
@@ -172,30 +169,30 @@ class Control:
 
     def _print_path(self) -> None:
         """ Prints the path of the beatmaps. """
-        print(f'path: {self.config.path}')
+        print(f'path: {self.config_manager.config.path}')
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
         """ Prints the beatmaps. """
         self._printer.print(beatmaps)
-        self.pause()
+        _io.pause()
 
     def _set_path(self) -> None:
         """ Sets the path of the beatmaps. If the user inputs `q`, the method will return. """
-        self.clear_screen()
-        self._print_path()
-        print('switch to (enter `q` to cancel):')
+        while True:
+            _io.clear_screen()
+            self._print_path()
+            print('switch to (enter `q` to cancel):')
+            command = _io.input().lower()
 
-        command = self._parser.input().lower()
-        if command == 'q':
-            return
-        self._config.path = command
+            if command == 'q':
+                return
+            if _io.is_valid_path(command):
+                break
 
-    @staticmethod
-    def clear_screen() -> None:
-        """ Clears the screen. """
-        os.system('cls' if os.name == 'nt' else 'clear')
+            print('invalid path.')
+            _io.pause()
 
-    @staticmethod
-    def pause() -> None:
-        """ Pauses the program until the user presses the Enter key. """
-        input('Press Enter to continue...')
+        # set the path in the config and save into the file.
+        config = self.config_manager.config
+        config.path = command
+        self.config_manager.config = config

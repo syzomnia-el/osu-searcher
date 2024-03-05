@@ -3,7 +3,11 @@ import os
 from collections import Counter
 from dataclasses import dataclass, field
 
+from ui import IOUtils
+
 __all__ = ['Beatmap', 'BeatmapManager']
+
+_io = IOUtils
 
 
 @dataclass(frozen=True)
@@ -66,7 +70,7 @@ class BeatmapManager:
 
         :param path: The path to the Songs directory of osu! game.
         """
-        if not path or not os.path.exists(path) or not os.path.isdir(path):
+        if not _io.is_valid_path(path):
             return
 
         filenames = list(map(lambda x: x.name, os.scandir(path)))

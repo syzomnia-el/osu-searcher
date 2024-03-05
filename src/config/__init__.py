@@ -2,13 +2,17 @@
 import json
 import os
 import sys
-from json.decoder import JSONDecodeError
+from json import JSONDecodeError
 from typing import Optional, TypedDict
 
-__all__ = ['ConfigManager']
+from ui import IOUtils
+
+__all__ = ['Config', 'ConfigManager']
+
+_io = IOUtils
 
 
-class Config(TypedDict):
+class ConfigDict(TypedDict):
     """
     The class is a type hint of the config.
 
@@ -18,53 +22,92 @@ class Config(TypedDict):
     path: Optional[str]
 
 
-class ConfigManager:
+class Config(dict):
     """
-    The class provides APIs to config management.
+    The class defines the config interface.
 
-    Attributes:
-        CONFIG_FILE: The path to the config file.
+    Properties:
+        path: The path in the config.
     """
-    CONFIG_FILE: str = f'{sys.path[0]}/config.json'
-    _config: Optional[Config] = None
+    _DEFAULT_CONFIG: ConfigDict = {'path': None}
 
-    def load(self) -> None:
-        """ Loads the config from the file. """
-        self._read_config()
-
-    def reset(self) -> None:
-        """ Resets the config. """
-        self._config = {'path': None}
-        self._write_config()
+    def __init__(self, config: ConfigDict = None) -> None:
+        """ Initialize the config. """
+        if config and isinstance(config, dict):
+            config_data = config
+        else:
+            config_data = self._DEFAULT_CONFIG
+        super().__init__(config_data)
 
     @property
     def path(self) -> Optional[str]:
         """ Returns the path in the config. """
-        return self._config.get('path', None)
+        return self.get('path', None)
 
     @path.setter
     def path(self, path: str) -> None:
         """ Sets the path in the config. """
-        if not path or not os.path.exists(path) or not os.path.isdir(path):
+        if not _io.is_valid_path(path):
             print(f'invalid path:`{path}`')
             return
 
-        if self._config is None:
-            self._config = {}
+        self['path'] = path
 
-        self._config['path'] = path
-        self._write_config()
 
-    def _read_config(self) -> None:
-        """ Reads the config from the file. """
+class ConfigManager:
+    """
+    The abstract class defines the config manager interface.
+
+    Attributes:
+        CONFIG_FILE: The absolute path to the config file.
+
+    Properties:
+        config: The config of the manager.
+
+    Methods:
+        load: Loads the config from the file.
+        reset: Resets the config.
+    """
+    CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
+    _config: Optional[Config] = None
+
+    @property
+    def config(self) -> Optional[Config]:
+        """ Returns the config. """
+        return self._config
+
+    @config.setter
+    def config(self, config: Config) -> None:
+        """ Sets the config. """
+        if not config or not isinstance(config, Config):
+            config = Config()
+
+        self._config = config
+        self.save()
+
+    def load(self) -> None:
+        """ Loads the config from the file. """
+        self._read()
+
+    def save(self) -> None:
+        """ Saves the config to the file. """
+        self._write()
+
+    def reset(self) -> None:
+        """ Resets the config. """
+        self.config = Config()
+
+    def _read(self) -> None:
+        """ Reads the config from the JSON file."""
         try:
             with open(self.CONFIG_FILE, 'r') as f:
-                self._config = json.load(f)
+                data = json.load(f)
+                self._config = Config(data)
         except (IOError, JSONDecodeError):
-            print('config file not found or invalid, reset the config.')
+            print('Invalid JSON file, reset the config.')
             self.reset()
 
-    def _write_config(self) -> None:
-        """ Writes the config to the file. """
+    def _write(self) -> None:
+        """ Writes the config to the JSON file. """
         with open(self.CONFIG_FILE, 'w') as f:
             json.dump(self._config, f)
