@@ -25,13 +25,15 @@ class TimerResult:
     time: float
 
 
-def timer(func: Function, repeat: int = DEFAULT_REPEAT, number: int = DEFAULT_NUMBER) -> TimerResult:
+def timer(func: Function, repeat: int = DEFAULT_REPEAT, number: int = DEFAULT_NUMBER,
+          silent: bool = True) -> TimerResult:
     """
     Measures the average execution time of a function.
 
     :param func: The function to be measured.
     :param repeat: The times number to repeat the measurement.
     :param number: The times number to execute the function.
+    :param silent: Whether to print the measurement processing information.
     :return: The average execution time of the function in milliseconds.
     """
     global DEFAULT_REPEAT, DEFAULT_NUMBER
@@ -42,9 +44,11 @@ def timer(func: Function, repeat: int = DEFAULT_REPEAT, number: int = DEFAULT_NU
     if not isinstance(number, int) or number <= 0:
         raise TypeError('number must be a positive integer.')
 
-    print(f'Measuring the execution time of {func.__name__}...')
+    if not silent:
+        print(f'Measuring {func.__name__}...')
     times = timeit.repeat(func, repeat=repeat, number=number)
-    print(f'Measurement completed of {func.__name__}, the average execution time is {mean(times):.6f} ms')
+    if not silent:
+        print(f'Measurement completed of {func.__name__}, the average execution time is {mean(times):.6f} ms')
     return TimerResult(func=func, time=mean(times))
 
 
@@ -75,10 +79,16 @@ def print_formatted_timer_results(
             print('An error occurred while measuring the execution time.')
             print(e)
 
-    baseline = min(results, key=lambda x: x.time).time
+    results.sort(key=lambda x: x.time)
+    baseline = results[0].time
 
     print('## Timer Results')
-    print('No.| Function Name            | Execution Time | Rate')
-    print('---|--------------------------|----------------|--------')
+    print('No.| Function Name             | Total Cost  | Rate')
+    print('---|-------------------------- |-------------|---------')
     for index, result in enumerate(results):
-        print(f'{index:<2} | {result.func.__name__:<25.25}  | {result.time:<.6f} ms | {result.time / baseline:.4f}')
+        print(
+            f'{index:<2} | '
+            f'{result.func.__name__:<25.25} | '
+            f'{result.time:<.6f} ms | '
+            f'{(result.time / baseline) * 100:.2f} %'
+        )
