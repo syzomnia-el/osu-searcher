@@ -6,12 +6,12 @@ from model import Beatmap, BeatmapManager
 from ui import Parser, Printer
 from ui.cli import BeatmapPrinter, CLIUtils, CommandParser
 
-__all__ = ['Control']
+__all__ = ['Client']
 
 _io = CLIUtils
 
 
-class Control:
+class Client:
     """
     The class is a singleton provides APIs for the user to interact with the program.
     All the commands are listed as below:
