@@ -2,6 +2,7 @@
 import os
 from collections import Counter
 from dataclasses import dataclass, field
+from functools import total_ordering
 
 from ui import IOUtils
 
@@ -11,6 +12,7 @@ _io = IOUtils
 
 
 @dataclass(frozen=True)
+@total_ordering
 class Beatmap:
     """
     The class implements the beatmap datatype.
@@ -24,17 +26,19 @@ class Beatmap:
     artist: str = ''
     name: str = ''
 
-    _artist_lower: str = field(init=False, repr=False)
-    _name_lower: str = field(init=False, repr=False)
+    _artist_lower: str = field(default='', repr=False)
+    _name_lower: str = field(default='', repr=False)
 
     def __post_init__(self) -> None:
-        """ Initializes the attributes. """
+        """ Cache the lower case of the artist and name for searching. """
+        # It is a little bit tricky to use the private method, but I cannot find a better way to do this.
         object.__setattr__(self, '_artist_lower', self.artist.lower())
         object.__setattr__(self, '_name_lower', self.name.lower())
 
     def __contains__(self, s: str) -> bool:
         """ Returns whether a string belongs to the beatmap. """
-        return any(s.lower() in value for value in (self.sid, self._artist_lower, self._name_lower))
+        s_lower = s.lower()
+        return any(s_lower in value for value in (self.sid, self._artist_lower, self._name_lower))
 
     def __hash__(self) -> int:
         """ Returns the hash value of the beatmap. """
@@ -76,8 +80,9 @@ class BeatmapManager:
         filenames = list(map(lambda x: x.name, os.scandir(path)))
         if not filenames:
             return
-
-        object.__setattr__(self, 'beatmaps', sorted(map(self._parse_beatmap, filenames)))
+        # It is a little bit tricky to use the private method, but I cannot find a better way to do this.
+        beatmaps = sorted(map(self._parse_beatmap, filenames))
+        object.__setattr__(self, 'beatmaps', beatmaps)
 
     def filter(self, key: str = '') -> list[Beatmap]:
         """

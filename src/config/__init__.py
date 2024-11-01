@@ -3,7 +3,8 @@ import json
 import os
 import sys
 from json import JSONDecodeError
-from typing import Optional, TypedDict
+from os import PathLike
+from typing import Optional, TypedDict, cast
 
 from ui import IOUtils
 
@@ -33,10 +34,7 @@ class Config(dict):
 
     def __init__(self, config: ConfigDict = None) -> None:
         """ Initialize the config. """
-        if config and isinstance(config, dict):
-            config_data = config
-        else:
-            config_data = self._DEFAULT_CONFIG
+        config_data = config if config and isinstance(config, dict) else self._DEFAULT_CONFIG
         super().__init__(config_data)
 
     @property
@@ -68,7 +66,7 @@ class ConfigManager:
         load: Loads the config from the file.
         reset: Resets the config.
     """
-    CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
+    CONFIG_FILE: PathLike[str] = os.path.join(sys.path[0], 'config.json')
     _config: Optional[Config] = None
 
     @property
@@ -100,7 +98,7 @@ class ConfigManager:
     def _read(self) -> None:
         """ Reads the config from the JSON file."""
         try:
-            with open(self.CONFIG_FILE, 'r') as f:
+            with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 self._config = Config(data)
         except (IOError, JSONDecodeError):
@@ -109,5 +107,6 @@ class ConfigManager:
 
     def _write(self) -> None:
         """ Writes the config to the JSON file. """
-        with open(self.CONFIG_FILE, 'w') as f:
+        with open(self.CONFIG_FILE, 'w', encoding='utf-8') as f:
+            f = cast('IO[str]', f)
             json.dump(self._config, f)
