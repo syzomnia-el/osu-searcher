@@ -77,7 +77,7 @@ class BeatmapManager:
         if not filenames:
             return
 
-        beatmaps = sorted(map(self._parse_beatmap, filenames))
+        beatmaps = sorted(filter(None, map(self._parse_beatmap, filenames)))
         # It is a little bit tricky to use the magic method,
         # but I cannot find other better way to do this.
         object.__setattr__(self, 'beatmaps', beatmaps)
@@ -102,7 +102,7 @@ class BeatmapManager:
         return [beatmap for beatmap, count in Counter(self.beatmaps).items() if count > 1]
 
     @staticmethod
-    def _parse_beatmap(filename: str) -> Beatmap:
+    def _parse_beatmap(filename: str) -> Beatmap | None:
         """
         Parses beatmap data from the filename.
 
@@ -110,9 +110,11 @@ class BeatmapManager:
         :return: A Beatmap object parsed from the filename.
         """
         try:
-            tmp, name = filename.strip().rsplit(' - ', 1)
-            sid, artist = tmp.split(' ', 1)
-            return Beatmap(sid, artist.strip(), name)
+            tmp, *name = filename.strip().rsplit(' - ', 1)
+            sid, *artist = tmp.split(' ', 1)
+            artist = artist[0].strip() if artist else ''
+            name = name[0] if name else ''
+            return Beatmap(sid, artist, name)
         except ValueError:
             print(f'Invalid beatmap filename: {filename}')
-            return Beatmap()
+            return None
