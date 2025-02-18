@@ -31,7 +31,8 @@ class Beatmap:
 
     def __post_init__(self) -> None:
         """ Cache the lower case of the artist and name for searching. """
-        # It is a little bit tricky to use the private method, but I cannot find a better way to do this.
+        # It is a little bit tricky to use the magic method,
+        # but I cannot find other better way to do this.
         object.__setattr__(self, '_artist_lower', self.artist.lower())
         object.__setattr__(self, '_name_lower', self.name.lower())
 
@@ -49,12 +50,7 @@ class Beatmap:
         return self.sid == other.sid
 
     def __lt__(self, other: 'Beatmap') -> bool:
-        """
-        Compares the beatmap with the other beatmap by the name string.
-
-        :param other: The other beatmap to compare.
-        :return: True if he beatmap is less than the other beatmap, otherwise False.
-        """
+        """ Compares the beatmap with the other beatmap by the name string. """
         return self.name < other.name
 
 
@@ -80,8 +76,10 @@ class BeatmapManager:
         filenames = list(map(lambda x: x.name, os.scandir(path)))
         if not filenames:
             return
-        # It is a little bit tricky to use the private method, but I cannot find a better way to do this.
+
         beatmaps = sorted(map(self._parse_beatmap, filenames))
+        # It is a little bit tricky to use the magic method,
+        # but I cannot find other better way to do this.
         object.__setattr__(self, 'beatmaps', beatmaps)
 
     def filter(self, key: str = '') -> list[Beatmap]:

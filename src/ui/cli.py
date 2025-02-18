@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from argparse import ArgumentParser
-from typing import NamedTuple, Optional, override
+from typing import NamedTuple, Self, override
 
 from model import Beatmap
 from ui import IOUtils, Parser, Printer
@@ -12,7 +12,7 @@ __all__ = ['CLIUtils', 'CommandParser', 'BeatmapPrinter']
 class CLIUtils(IOUtils):
     """ The class implements the utility for the command line interface. """
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         """ The class cannot be instantiated. """
         raise NotImplementedError('The class cannot be instantiated.')
 
@@ -36,7 +36,7 @@ class CLIUtils(IOUtils):
 class Command(NamedTuple):
     """ The class represents a command. """
     key: str = ''
-    args: Optional[list[str]] = None
+    args: list[str] | None = None
 
 
 class CommandParser(Parser):
@@ -46,7 +46,7 @@ class CommandParser(Parser):
     """
     _parser: ArgumentParser
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         """
         Initialize the parser.
 
@@ -64,7 +64,7 @@ class CommandParser(Parser):
             nargs='*',
             help='The command arguments.'
         )
-        cls._parser.error = (lambda _: Command())
+        cls._parser.error = lambda _: Command()
         return super().__new__(cls)
 
     @override
@@ -82,7 +82,7 @@ class BeatmapPrinter(Printer):
     _PARTING_LINE = '-' * (_WIDTH_SID + _WIDTH_ARTIST + 10)
 
     @override
-    def print(self, beatmaps: list[Beatmap]) -> None:
+    def print(self, output: list[Beatmap]) -> None:
         """
         Prints the beatmaps as below.
 
@@ -94,14 +94,16 @@ class BeatmapPrinter(Printer):
 
         :param beatmaps: The beatmaps to print.
         """
-        if not isinstance(beatmaps, list) or not all(isinstance(i, Beatmap) for i in beatmaps):
+        if not isinstance(output, list) or not all(isinstance(i, Beatmap) for i in output):
             print('Invalid beatmaps.')
             return
 
         print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
         print(self._PARTING_LINE)
-
-        for i in beatmaps:
-            print(f'{i.sid:<{self._WIDTH_SID}} | {i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | {i.name}')
-
-        print(f'total: {len(beatmaps)}')
+        for i in output:
+            print(
+                f'{i.sid:<{self._WIDTH_SID}} | '
+                f'{i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | '
+                f'{i.name}'
+            )
+        print(f'total: {len(output)}')

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from typing import Callable, NoReturn
+from collections.abc import Callable
+from typing import NoReturn
 
 from config import ConfigManager
 from model import Beatmap, BeatmapManager
@@ -24,7 +25,7 @@ class Client:
         - path: Modify the saved path of the beatmaps.
 
     Methods:
-        run: The main entry point of the program. Loop until the user inputs `exit`, or an error occurs.
+        run: The main entry point. Loop until the user inputs `exit`, or an error occurs.
         shutdown: Exits the program.
     """
     _COMMANDS: dict[str, Callable]
@@ -59,7 +60,6 @@ class Client:
 
         self._config_manager = config_manager
         self._config_manager.load()
-
         # If the path is not set, ask user to input.
         while not self._config_manager.config.path:
             self._set_path()
@@ -143,7 +143,7 @@ class Client:
         self._print_path()
         print('command:')
         print('-', end=' ')
-        for i in self._COMMANDS.keys():
+        for i in self._COMMANDS:
             print(f'{i} <keyword>' if i == 'find' else i, end=' | ')
         print()
 
@@ -151,17 +151,19 @@ class Client:
         """ Parses the command and executes the corresponding method. """
         _io.clear_screen()
         self._prompt()
-
         # parse the command from the user input.
-        key, args = self._parser.parse()
-        if key not in self._COMMANDS:
+        command, args = self._parser.parse()
+        self._execute_command(command, args)
+
+    def _execute_command(self, command: str, args: list[str]) -> None:
+        """ Executes the corresponding method based on the command. """
+        if command not in self._COMMANDS:
             return
         if not args:
             args = ['']
 
-        # execute the corresponding method.
-        method = self._COMMANDS[key]
-        match key:
+        method = self._COMMANDS[command]
+        match command:
             case 'find':
                 method(args[0])
             case _:
@@ -182,8 +184,8 @@ class Client:
             _io.clear_screen()
             self._print_path()
             print('switch to (enter `q` to cancel):')
-            command = _io.input().lower()
 
+            command = _io.input().lower()
             if command == 'q':
                 return
             if _io.is_valid_path(command):
@@ -191,7 +193,6 @@ class Client:
 
             print('invalid path.')
             _io.pause()
-
         # set the path in the config and save into the file.
         config = self.config_manager.config
         config.path = command

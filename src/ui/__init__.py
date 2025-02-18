@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 __all__ = ['IOUtils', 'Parser', 'Printer']
 
+from typing import Self
 
-class IOUtils(metaclass=ABCMeta):
+
+class IOUtils(ABC):
     """ The abstract class defines an interface how to interact with the user. """
 
-    def __new__(cls):
+    def __new__(cls) -> Self:
         """ The class cannot be instantiated. """
         raise NotImplementedError('The class cannot be instantiated.')
 
@@ -17,7 +19,6 @@ class IOUtils(metaclass=ABCMeta):
     @abstractmethod
     def input() -> str:
         """ Get the user input. """
-        pass
 
     @staticmethod
     def is_valid_path(path: str) -> bool:
@@ -30,19 +31,17 @@ class IOUtils(metaclass=ABCMeta):
         sys.exit(code)
 
 
-class Parser(metaclass=ABCMeta):
+class Parser(ABC):
     """ The abstract class defines an interface how to parse the user input. """
 
     @abstractmethod
     def parse(self) -> object:
         """ Parses the user input. """
-        pass
 
 
-class Printer(metaclass=ABCMeta):
+class Printer(ABC):
     """ The abstract class defines an interface how to print the output. """
 
     @abstractmethod
     def print(self, output: object) -> None:
         """ Prints the output. """
-        pass

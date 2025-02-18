@@ -3,8 +3,7 @@ import json
 import os
 import sys
 from json import JSONDecodeError
-from os import PathLike
-from typing import Optional, TypedDict, cast
+from typing import TypedDict
 
 from ui import IOUtils
 
@@ -20,7 +19,7 @@ class ConfigDict(TypedDict):
     Attributes:
         path: The path to the Songs directory of osu! game.
     """
-    path: Optional[str]
+    path: str | None
 
 
 class Config(dict):
@@ -38,7 +37,7 @@ class Config(dict):
         super().__init__(config_data)
 
     @property
-    def path(self) -> Optional[str]:
+    def path(self) -> str | None:
         """ Returns the path in the config. """
         return self.get('path', None)
 
@@ -66,11 +65,11 @@ class ConfigManager:
         load: Loads the config from the file.
         reset: Resets the config.
     """
-    CONFIG_FILE: PathLike[str] = os.path.join(sys.path[0], 'config.json')
-    _config: Optional[Config] = None
+    CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
+    _config: Config | None = None
 
     @property
-    def config(self) -> Optional[Config]:
+    def config(self) -> Config | None:
         """ Returns the config. """
         return self._config
 
@@ -108,5 +107,5 @@ class ConfigManager:
     def _write(self) -> None:
         """ Writes the config to the JSON file. """
         with open(self.CONFIG_FILE, 'w', encoding='utf-8') as f:
-            f = cast('IO[str]', f)
+            # noinspection PyTypeChecker
             json.dump(self._config, f)
