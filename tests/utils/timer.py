@@ -7,18 +7,19 @@ from typing import NamedTuple
 
 type Function = Callable[[], None]
 TimerResult = NamedTuple('TimerResult', [('func', Function), ('time', float)])
-type Timer = Callable[[Function], TimerResult]
-type TimerGenerator = Callable[[int, int, bool], Timer]
+type Timer = Callable[[Function, int, int, bool], TimerResult]
+type TimerWrapper = Callable[[Function], TimerResult]
 
 
-def generate_timer(repeat: int = 10, number: int = 1000, silent: bool = True) -> Timer:
+def timer(func: Function, repeat: int = 10, number: int = 1000, silent: bool = True) -> TimerResult:
     """
-    Generates a timer to measure the average execution time of a function.
+    Measures the average execution time of a function.
 
+    :param func: The function to be measured.
     :param repeat: The times the measurement is repeated.
     :param number: The times function is executed per measurement.
     :param silent: Whether to print the measurement result.
-    :return: A timer to measure the average execution time of a function.
+    :return: The timer result of the function.
     """
     if not isinstance(repeat, int) or repeat <= 0:
         raise TypeError('`repeat` must be a positive integer.')
@@ -26,53 +27,46 @@ def generate_timer(repeat: int = 10, number: int = 1000, silent: bool = True) ->
         raise TypeError('`number` must be a positive integer.')
     if not isinstance(silent, bool):
         raise TypeError('`silent` must be a boolean.')
+    if not callable(func):
+        raise TypeError('`func` must be a no-argument callable object.')
 
-    def timer(func: Function) -> TimerResult:
-        """
-        Measures the average execution time of a function.
-
-        :param func: The function to be measured.
-        :return: The timer result of the function.
-        """
-        if not callable(func):
-            raise TypeError('`func` must be a no-argument callable object.')
-
-        if not silent:
-            print(f'measuring {func.__name__}...')
-        times = timeit.repeat(func, repeat=repeat, number=number)
-        mean_time = mean(times)
-        if not silent:
-            print(
-                f'measurement completed ({func.__name__}),'
-                f'the average execution time is {mean_time:.6f} ms'
-            )
-        return TimerResult(func=func, time=mean_time)
-
-    return timer
+    if not silent:
+        print(f'measuring {func.__name__}...')
+    times = timeit.repeat(func, repeat=repeat, number=number)
+    mean_time = mean(times)
+    if not silent:
+        print(
+            f'measurement completed ({func.__name__}),'
+            f'the average execution time is {mean_time:.6f} ms'
+        )
+    return TimerResult(func=func, time=mean_time)
 
 
-def execute_timer(funcs: set[Function], /, timer: Timer = None) -> list[TimerResult]:
+def default_timer(func: Function) -> TimerResult:
+    """ Measures the average execution time of a function using the default parameters. """
+    return timer(func)
+
+
+def execute_timer(funcs: set[Function], /, timer_wrapper: TimerWrapper = default_timer) -> list[TimerResult]:
     """
     Executes the timer for each function in parallel.
 
     :param funcs: The functions to be measured.
-    :param timer: The timer function to be used.
+    :param timer_wrapper: The timer function to be used.
     :return: The timer results of each function
     """
     if not isinstance(funcs, set) or any(not callable(i) for i in funcs):
         raise TypeError('`funcs` must be a set of no-argument callable objects.')
-    if timer is None:
-        timer = generate_timer()
-    elif not callable(timer):
+    elif not callable(timer_wrapper):
         raise TypeError('`timer` must be a callable object.')
 
     with ProcessPoolExecutor() as executor:
         try:
-            results = list(executor.map(timer, funcs))
+            results = list(executor.map(timer_wrapper, funcs))
             return results
         except Exception as e:
             print('an error occurred while measuring the execution time.')
-            print(e)
+            print(f'{e.__class__.__name__}: {e}')
     return []
 
 

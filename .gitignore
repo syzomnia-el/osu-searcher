@@ -1,6 +1,6 @@
 # Project
 config.json
-test/**/test*.py
+tests/**/test*.py
 
 # JetBrains
 .idea/
