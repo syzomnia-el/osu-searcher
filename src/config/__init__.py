@@ -24,7 +24,7 @@ class ConfigDict(TypedDict):
 
 class Config(dict):
     """
-    The class defines the config interface.
+    The class defines the config data structure.
 
     Properties:
         path: The path in the config.
@@ -53,7 +53,7 @@ class Config(dict):
 
 class ConfigManager:
     """
-    The abstract class defines the config manager interface.
+    The class defines the config manager utils.
 
     Attributes:
         CONFIG_FILE: The absolute path to the config file.
@@ -64,6 +64,7 @@ class ConfigManager:
     Methods:
         load: Loads the config from the file.
         reset: Resets the config.
+        save: Saves the config to the file.
     """
     CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
     _config: Config | None = None
