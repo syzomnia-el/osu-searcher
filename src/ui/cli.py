@@ -92,13 +92,13 @@ class BeatmapPrinter(Printer):
             ...
             total: <total_number>
 
-        :param beatmaps: The beatmaps to print.
+        :param output: The beatmaps to print.
         """
         if not isinstance(output, list) or not all(isinstance(i, Beatmap) for i in output):
             print('Invalid beatmaps.')
             return
 
-        print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
+        print(f"{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name")
         print(self._PARTING_LINE)
         for i in output:
             print(
