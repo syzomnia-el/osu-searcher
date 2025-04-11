@@ -4,6 +4,7 @@ from typing import NoReturn
 
 from config import ConfigManager
 from model import Beatmap, BeatmapManager
+from model.beatmap import ConditionType
 from ui import Parser, Printer
 from ui.cli import BeatmapPrinter, CLIUtils, CommandParser
 
@@ -94,30 +95,35 @@ class Client:
         Checks the duplicate beatmaps and prints the result as below.
 
             sid   | artist   | name  \n
-            \u005c-------------------------\n
+            \------------------------\n
             <sid> | <artist> | <name>\n
             total: <total_number>
         """
         self._flush()
         self._print_beatmaps(self.beatmap_manager.check())
 
-    def _find(self, key: str = '') -> None:
+    def _find(self, condition: str = '') -> None:
         """
-        Finds beatmaps by a keyword and prints the result as below.
+        Finds beatmaps by a keyword, and prints the result as below.
         If the keyword is not given, ask the user to input.
+        Use `condition=keyword` for specific conditions filtering including sid, name or artist.
 
             sid   | artist   | name  \n
-            \u005c-------------------------\n
+            \------------------------\n
             <sid> | <artist> | <name>\n
             total: <total_number>
 
-       :param key: The keyword to find.
+       :param condition: The condition to find.
         """
-        if not key:
+        if not condition:
             print('keyword:')
-            key = _io.input()
+            condition = _io.input()
 
-        self._print_beatmaps(self.beatmap_manager.filter(key))
+        args = condition.split('=', 1)
+        if len(args) == 2 and args[0] in ConditionType:
+            condition = {ConditionType(args[0]): args[1]}
+
+        self._print_beatmaps(self.beatmap_manager.filter(condition))
 
     def _flush(self) -> None:
         """ Flushes the config and beatmap data cache. """
@@ -138,13 +144,13 @@ class Client:
 
         path: <path>\n
         command:\n
-        \u005c- check | exit | find <keyword> | flush | list | path`
+        \- check | exit | find [condition=]<keyword> | flush | list | path`
         """
         self._print_path()
         print('command:')
         print('-', end=' ')
         for i in self._COMMANDS:
-            print(f'{i} <keyword>' if i == 'find' else i, end=' | ')
+            print(f'{i} [condition=]<keyword>' if i == 'find' else i, end=' | ')
         print()
 
     def _parse_command(self) -> None:
@@ -165,7 +171,8 @@ class Client:
         method = self._COMMANDS[command]
         match command:
             case 'find':
-                method(args[0])
+                condition = args[0]
+                method(condition)
             case _:
                 method()
 

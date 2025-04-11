@@ -86,8 +86,8 @@ class BeatmapPrinter(Printer):
         """
         Prints the beatmaps as below.
 
-            sid | artist | name \n
-            \u005c-------------------------\n
+            sid    | artist   | name   \n
+            \--------------------------\n
             [<sid> | <artist> | <name>]\n
             ...
             total: <total_number>

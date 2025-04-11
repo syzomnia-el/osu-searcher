@@ -10,9 +10,10 @@ the startup.
 ## Feature
 
 - [x] View local beatmaps
-- [x] Filter beatmaps by keywords
 - [x] Check the duplicate beatmaps
-- [ ] Filter beatmaps by keywords for specific conditions such as sid, name, artist, mapper, etc.
+- [x] Filter beatmaps by keywords
+- [x] Filter beatmaps by keywords for specific conditions including sid, name or artist.
+- [ ] More condition filtering support
 
 ## Dependency
 
@@ -41,14 +42,14 @@ the startup.
 
 ## Command
 
-| Command              | Description                       |
-|----------------------|-----------------------------------|
-| check                | Check the duplicate beatmaps      |
-| exit                 | Exit osu!searcher                 |
-| find &lt;keyword&gt; | Filter beatmaps by a keyword      |
-| flush                | Flush the beatmap data cache      |
-| list                 | List all local beatmaps           |
-| path                 | Modify the saved path of beatmaps |
+| Command                          | Description                       |
+|----------------------------------|-----------------------------------|
+| check                            | Check the duplicate beatmaps      |
+| exit                             | Exit osu!searcher                 |
+| find [condition=]&lt;keyword&gt; | Filter beatmaps by a keyword      |
+| flush                            | Flush the beatmap data cache      |
+| list                             | List all local beatmaps           |
+| path                             | Modify the saved path of beatmaps |
 
 ## License
 
