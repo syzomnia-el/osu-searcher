@@ -15,8 +15,10 @@ class OSSApplication:
         while True:
             try:
                 self._client.run()
+            except KeyboardInterrupt:
+                self._client.exit(130)
             except IOError:
-                self._client.exit(-1)
+                self._client.exit(4)
 
     def shutdown(self) -> NoReturn:
         """ Exit the application."""
