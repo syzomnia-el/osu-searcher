@@ -16,11 +16,12 @@ the startup.
 
 ## Dependency
 
-- [Python 3.12](https://www.python.org/downloads) or later
+- [Python 3.12](https://www.python.org/downloads) or newer
 
 ## Development
 
 - Clone the repository:
+
   ```bash
   git clone https://github.com/syzomnia-el/osu-searcher.git
   ```
@@ -28,19 +29,21 @@ the startup.
 ## Usage
 
 1. Run the `main.py` file:
+
    ```bash
    python <your_dir>/main.py
    ```
+
 2. Run the`startup.cmd`(or`startup.sh`) script.
 
-> When using it for the first time, you need to input the **absolute** path of the folder where your beatmaps are
-> saved.
+> When using it for the first time,
+> you need to input the **absolute** path of the folder where your beatmaps are saved.
 
 ## Command
 
 | Command              | Description                       |
 |----------------------|-----------------------------------|
-| check                | Check the duplicate beatmaps      | 
+| check                | Check the duplicate beatmaps      |
 | exit                 | Exit osu!searcher                 |
 | find &lt;keyword&gt; | Filter beatmaps by a keyword      |
 | flush                | Flush the beatmap data cache      |
@@ -49,5 +52,5 @@ the startup.
 
 ## License
 
-osu!searcher is licensed under [MIT License](https://opensource.org/licenses/MIT). Please view [license file](LICENSE)
-for more information.
+osu!searcher is licensed under [MIT License](https://opensource.org/licenses/MIT).
+View [license file](LICENSE) for more information.

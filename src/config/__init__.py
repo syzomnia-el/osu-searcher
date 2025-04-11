@@ -1,64 +1,112 @@
 # -*- coding: utf-8 -*-
 import json
+import os
 import sys
-from json.decoder import JSONDecodeError
-from typing import Optional, TypedDict
+from json import JSONDecodeError
+from typing import TypedDict
 
-__all__ = ['Config']
+from ui import IOUtils
+
+__all__ = ['Config', 'ConfigManager']
+
+_io = IOUtils
 
 
-class ConfigType(TypedDict):
+class ConfigDict(TypedDict):
     """
     The class is a type hint of the config.
 
     Attributes:
         path: The path to the Songs directory of osu! game.
     """
-    path: Optional[str]
+    path: str | None
 
 
-class Config:
+class Config(dict):
     """
-    The class provides APIs to config management.
+    The class defines the config data structure.
 
-    Attributes:
-        CONFIG_FILE: The path to the config file.
+    Properties:
+        path: The path in the config.
     """
-    CONFIG_FILE: str = f'{sys.path[0]}/config.json'
-    _config: Optional[ConfigType] = None
+    _DEFAULT_CONFIG: ConfigDict = {'path': None}
 
-    def load(self) -> None:
-        """ Loads the config from the file. """
-        self._read_config()
-
-    def reset(self) -> None:
-        """ Resets the config. """
-        self._config = {'path': None}
-        self._write_config()
+    def __init__(self, config: ConfigDict = None) -> None:
+        """ Initialize the config. """
+        config_data = config if config and isinstance(config, dict) else self._DEFAULT_CONFIG
+        super().__init__(config_data)
 
     @property
-    def path(self) -> Optional[str]:
-        """ Returns path in the config. """
-        return self._config.get('path', None)
+    def path(self) -> str | None:
+        """ Returns the path in the config. """
+        return self.get('path', None)
 
     @path.setter
     def path(self, path: str) -> None:
-        """ Sets path in the config. """
-        if self._config is None:
-            self._config = {}
+        """ Sets the path in the config. """
+        if not _io.is_valid_path(path):
+            print(f'invalid path:`{path}`')
+            return
 
-        self._config['path'] = path
-        self._write_config()
+        self['path'] = path
 
-    def _read_config(self) -> None:
-        """ Reads the config from the file. """
+
+class ConfigManager:
+    """
+    The class defines the config manager utils.
+
+    Attributes:
+        CONFIG_FILE: The absolute path to the config file.
+
+    Properties:
+        config: The config of the manager.
+
+    Methods:
+        load: Loads the config from the file.
+        reset: Resets the config.
+        save: Saves the config to the file.
+    """
+    CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
+    _config: Config | None = None
+
+    @property
+    def config(self) -> Config | None:
+        """ Returns the config. """
+        return self._config
+
+    @config.setter
+    def config(self, config: Config) -> None:
+        """ Sets the config. """
+        if not config or not isinstance(config, Config):
+            config = Config()
+
+        self._config = config
+        self.save()
+
+    def load(self) -> None:
+        """ Loads the config from the file. """
+        self._read()
+
+    def save(self) -> None:
+        """ Saves the config to the file. """
+        self._write()
+
+    def reset(self) -> None:
+        """ Resets the config. """
+        self.config = Config()
+
+    def _read(self) -> None:
+        """ Reads the config from the JSON file."""
         try:
-            with open(self.CONFIG_FILE, 'r') as f:
-                self._config = json.load(f)
+            with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self._config = Config(data)
         except (IOError, JSONDecodeError):
+            print('Invalid JSON file, reset the config.')
             self.reset()
 
-    def _write_config(self) -> None:
-        """ Writes the config to the file. """
-        with open(self.CONFIG_FILE, 'w') as f:
+    def _write(self) -> None:
+        """ Writes the config to the JSON file. """
+        with open(self.CONFIG_FILE, 'w', encoding='utf-8') as f:
+            # noinspection PyTypeChecker
             json.dump(self._config, f)

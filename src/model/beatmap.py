@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
-import contextlib
 import os
 from collections import Counter
 from dataclasses import dataclass, field
+from functools import total_ordering
+
+from ui import IOUtils
 
 __all__ = ['Beatmap', 'BeatmapManager']
 
+_io = IOUtils
+
 
 @dataclass(frozen=True)
+@total_ordering
 class Beatmap:
     """
     The class implements the beatmap datatype.
@@ -21,90 +26,95 @@ class Beatmap:
     artist: str = ''
     name: str = ''
 
-    def __contains__(self, x: str) -> bool:
-        """
-        Checks whether the string belongs to the beatmap.
+    _artist_lower: str = field(default='', repr=False)
+    _name_lower: str = field(default='', repr=False)
 
-        Args:
-            x: The string to check.
-            
-        Returns:
-            True if the string belongs to the beatmap, otherwise False.
-        """
+    def __post_init__(self) -> None:
+        """ Cache the lower case of the artist and name for searching. """
+        # It is a little bit tricky to use the magic method,
+        # but I cannot find other better way to do this.
+        object.__setattr__(self, '_artist_lower', self.artist.lower())
+        object.__setattr__(self, '_name_lower', self.name.lower())
 
-        return any(x.lower() in value.lower() for value in vars(self).values())
+    def __contains__(self, s: str) -> bool:
+        """ Returns whether a string belongs to the beatmap. """
+        s_lower = s.lower()
+        return any(s_lower in value for value in (self.sid, self._artist_lower, self._name_lower))
 
     def __hash__(self) -> int:
         """ Returns the hash value of the beatmap. """
         return hash(int(self.sid))
 
+    def __eq__(self, other: 'Beatmap') -> bool:
+        """ Returns whether the beatmap is equal to the other beatmap. """
+        return self.sid == other.sid
+
     def __lt__(self, other: 'Beatmap') -> bool:
-        """
-        Compares the beatmap with the other beatmap.
-
-        Args:
-            other: The other beatmap to compare.
-
-        Returns:
-            True if the name of the beatmap is less than the other beatmap, otherwise False.
-        """
-        return self.name.lower() < other.name.lower()
+        """ Compares the beatmap with the other beatmap by the name string. """
+        return self.name < other.name
 
 
 @dataclass(frozen=True)
 class BeatmapManager:
-    """ The class provides API to beatmap management. """
+    """
+    The class provides API to beatmap management.
+
+    Attributes:
+        beatmaps: The list of beatmaps.
+    """
     beatmaps: list[Beatmap] = field(default_factory=list, repr=False)
 
     def load(self, path: str = None) -> None:
         """
         Loads beatmap data from the path.
 
-        Args:
-            path: The path to the Songs directory of osu! game.
+        :param path: The path to the Songs directory of osu! game.
         """
-        if not path or not os.path.exists(path):
+        if not _io.is_valid_path(path):
             return
 
-        for i in os.listdir(path):
-            with contextlib.suppress(ValueError):
-                beatmap = self._parse_beatmap(i)
-                self.beatmaps.append(beatmap)
+        filenames = list(map(lambda x: x.name, os.scandir(path)))
+        if not filenames:
+            return
+
+        beatmaps = sorted(filter(None, map(self._parse_beatmap, filenames)))
+        # It is a little bit tricky to use the magic method,
+        # but I cannot find other better way to do this.
+        object.__setattr__(self, 'beatmaps', beatmaps)
 
     def filter(self, key: str = '') -> list[Beatmap]:
         """
-        Returns the beatmaps matching the keyword.
+        Filters beatmaps by the keyword.
         The keyword is case-insensitive.
-        If the keyword is an empty string, returns all the beatmaps.
+        If the keyword is an empty string, returns all beatmaps.
 
-       Args:
-            key: The keyword to filter.
-
-        Returns:
-            A list of beatmaps matching the keyword.
+        :param key: The keyword to filter.
+        :return: A list of beatmaps matching the keyword.
         """
         return [beatmap for beatmap in self.beatmaps if key in beatmap]
 
     def check(self) -> list[Beatmap]:
         """
-        Checks whether any duplicated sid is in the beatmaps.
+        Checks duplicated beatmaps by the sid.
 
-        Returns:
-            A list of beatmaps with the duplicated sid.
+        :return: A list of beatmaps with the duplicated sid.
         """
         return [beatmap for beatmap, count in Counter(self.beatmaps).items() if count > 1]
 
     @staticmethod
-    def _parse_beatmap(filename: str) -> Beatmap:
+    def _parse_beatmap(filename: str) -> Beatmap | None:
         """
         Parses beatmap data from the filename.
 
-        Args:
-            filename: The filename of the beatmap.
-
-        Returns:
-            A Beatmap object parsed from the filename.
+        :param filename: The filename of the beatmap.
+        :return: A Beatmap object parsed from the filename.
         """
-        tmp, name = filename.split(' - ', 1)
-        sid, artist = tmp.strip().split(' ', 1)
-        return Beatmap(sid, artist, name)
+        try:
+            tmp, *name = filename.strip().rsplit(' - ', 1)
+            sid, *artist = tmp.split(' ', 1)
+            artist = artist[0].strip() if artist else ''
+            name = name[0] if name else ''
+            return Beatmap(sid, artist, name)
+        except ValueError:
+            print(f'Invalid beatmap filename: {filename}')
+            return None

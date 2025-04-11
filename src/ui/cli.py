@@ -1,16 +1,42 @@
 # -*- coding: utf-8 -*-
+import os
 from argparse import ArgumentParser
-from typing import NamedTuple
+from typing import NamedTuple, Self, override
 
-from ui import Parser, Printer
+from model import Beatmap
+from ui import IOUtils, Parser, Printer
 
-__all__ = ['CommandParser', 'BeatmapPrinter']
+__all__ = ['CLIUtils', 'CommandParser', 'BeatmapPrinter']
+
+
+class CLIUtils(IOUtils):
+    """ The class implements the utility for the command line interface. """
+
+    def __new__(cls) -> Self:
+        """ The class cannot be instantiated. """
+        raise NotImplementedError('The class cannot be instantiated.')
+
+    @staticmethod
+    @override
+    def input() -> str:
+        """ Get the user input. """
+        return input('>>> ').strip()
+
+    @staticmethod
+    def clear_screen() -> None:
+        """ Clears the screen. """
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    @staticmethod
+    def pause() -> None:
+        """ Pauses the program until the user presses the Enter key. """
+        input('Press Enter to continue...')
 
 
 class Command(NamedTuple):
     """ The class represents a command. """
-    key: str
-    args: list[str]
+    key: str = ''
+    args: list[str] | None = None
 
 
 class CommandParser(Parser):
@@ -20,23 +46,31 @@ class CommandParser(Parser):
     """
     _parser: ArgumentParser
 
-    def __init__(self):
+    def __new__(cls) -> Self:
         """
         Initialize the parser.
 
         User input format: <key> [arg1] [arg2] ...
         """
-        self._parser = ArgumentParser()
-        self._parser.add_argument('key', type=str, help='The command key.')
-        self._parser.add_argument('args', nargs='*', help='The command arguments.')
+        cls._parser = ArgumentParser()
+        cls._parser.add_argument(
+            'key',
+            type=str,
+            help='The command key.',
+            choices=['check', 'exit', 'find', 'flush', 'list', 'path']
+        )
+        cls._parser.add_argument(
+            'args',
+            nargs='*',
+            help='The command arguments.'
+        )
+        cls._parser.error = lambda _: Command()
+        return super().__new__(cls)
 
-    def input(self) -> str:
-        """ Get the user input. """
-        return input('>>> ').strip()
-
+    @override
     def parse(self) -> Command:
         """ Parse the user input and return the command. """
-        input_args = self.input().split()
+        input_args = CLIUtils.input().split()
         args = self._parser.parse_args(input_args)
         return Command(args.key, args.args)
 
@@ -47,9 +81,10 @@ class BeatmapPrinter(Printer):
     _WIDTH_ARTIST = 42
     _PARTING_LINE = '-' * (_WIDTH_SID + _WIDTH_ARTIST + 10)
 
-    def print(self, beatmaps: list) -> None:
+    @override
+    def print(self, output: list[Beatmap]) -> None:
         """
-        Prints the beatmaps as below:
+        Prints the beatmaps as below.
 
             sid | artist | name \n
             \u005c-------------------------\n
@@ -57,13 +92,18 @@ class BeatmapPrinter(Printer):
             ...
             total: <total_number>
 
-        Args:
-            beatmaps: The beatmaps to print.
+        :param output: The beatmaps to print.
         """
-        print(f'{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name')
+        if not isinstance(output, list) or not all(isinstance(i, Beatmap) for i in output):
+            print('Invalid beatmaps.')
+            return
+
+        print(f"{'sid':<{self._WIDTH_SID}} | {'artist':<{self._WIDTH_ARTIST}} | name")
         print(self._PARTING_LINE)
-
-        for i in sorted(beatmaps):
-            print(f'{i.sid:<{self._WIDTH_SID}} | {i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | {i.name}')
-
-        print(f'total: {len(beatmaps)}')
+        for i in output:
+            print(
+                f'{i.sid:<{self._WIDTH_SID}} | '
+                f'{i.artist:<{self._WIDTH_ARTIST}.{self._WIDTH_ARTIST}} | '
+                f'{i.name}'
+            )
+        print(f'total: {len(output)}')
