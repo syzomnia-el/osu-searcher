@@ -6,11 +6,19 @@ from config import ConfigManager
 from model import Beatmap, BeatmapManager
 from model.beatmap import ConditionType
 from ui import Parser, Printer
-from ui.cli import BeatmapPrinter, CLIUtils, CommandParser
+
+__EXIST_RICH__ = False
+try:
+    from ui.rich_cli import BeatmapRichPrinter, CLIRichUtils, CommandRichParser, console
+    from rich.panel import Panel
+
+    __EXIST_RICH__ = True
+except ModuleNotFoundError:
+    from ui.cli import BeatmapPrinter, CLIUtils, CommandParser, console
 
 __all__ = ['Client']
 
-_io = CLIUtils
+_io = CLIRichUtils if __EXIST_RICH__ else CLIUtils
 
 
 class Client:
@@ -33,8 +41,8 @@ class Client:
 
     _config_manager: ConfigManager
     _beatmap_manager: BeatmapManager
-    _parser: Parser = CommandParser()
-    _printer: Printer = BeatmapPrinter()
+    _parser: Parser = CommandRichParser() if __EXIST_RICH__ else CommandParser()
+    _printer: Printer = BeatmapRichPrinter() if __EXIST_RICH__ else BeatmapPrinter()
 
     def __init__(self) -> None:
         """ Initializes the class and load the config. """
@@ -61,7 +69,7 @@ class Client:
 
         self._config_manager = config_manager
         self._config_manager.load()
-        # If the path is not set, ask user to input.
+        # If the path is not set, ask the user to input.
         while not self._config_manager.config.path:
             self._set_path()
         self.beatmap_manager = BeatmapManager()
@@ -116,7 +124,11 @@ class Client:
        :param condition: The condition to find.
         """
         if not condition:
-            print('keyword:')
+            if __EXIST_RICH__:
+                console.print('[magenta]keyword[/]:')
+            else:
+                console.print('keyword:')
+            # get the condition from the user input.
             condition = _io.input()
 
         args = condition.split('=', 1)
@@ -140,18 +152,31 @@ class Client:
 
     def _prompt(self) -> None:
         """
-        Prints the prompt as below.
+        Prints the prompt.
 
         path: <path>\n
         command:\n
         \- check | exit | find [condition=]<keyword> | flush | list | path`
         """
         self._print_path()
-        print('command:')
-        print('-', end=' ')
-        for i in self._COMMANDS:
-            print(f'{i} [condition=]<keyword>' if i == 'find' else i, end=' | ')
-        print()
+        if __EXIST_RICH__:
+            output = Panel(
+                '\n'.join(
+                    f"[red]-[/] {f'{i} [italic grey50]\[condition=][/][italic magenta]<keyword>[/]' if i == 'find' else i}"
+                    for i in self._COMMANDS
+                ),
+                title='Command',
+                border_style='green'
+            )
+        else:
+            output = (
+                "command:\n"
+                f"- {' | '.join(
+                    f'{i} [condition=]<keyword>' if i == 'find' else i
+                    for i in self._COMMANDS
+                )}"
+            )
+        console.print(output)
 
     def _parse_command(self) -> None:
         """ Parses the command and executes the corresponding method. """
@@ -178,7 +203,15 @@ class Client:
 
     def _print_path(self) -> None:
         """ Prints the path of the beatmaps. """
-        print(f'path: {self.config_manager.config.path}')
+        if __EXIST_RICH__:
+            output = Panel(
+                self.config_manager.config.path,
+                title='Path',
+                border_style='blue'
+            )
+        else:
+            output = f'path: {self.config_manager.config.path}'
+        console.print(output)
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
         """ Prints the beatmaps. """
@@ -190,7 +223,10 @@ class Client:
         while True:
             _io.clear_screen()
             self._print_path()
-            print('switch to (enter `q` to cancel):')
+            if __EXIST_RICH__:
+                console.print('switch to (enter `[warning]q[/]` to cancel):')
+            else:
+                console.print('switch to (enter `q` to cancel):')
 
             command = _io.input().lower()
             if command == 'q':
@@ -198,7 +234,7 @@ class Client:
             if _io.is_valid_path(command):
                 break
 
-            print('invalid path.')
+            console.error('invalid path.')
             _io.pause()
         # set the path in the config and save into the file.
         config = self.config_manager.config
