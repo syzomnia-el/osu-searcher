@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import builtins
 import os
 from argparse import ArgumentParser
 from typing import NamedTuple, Self, override
@@ -6,8 +7,15 @@ from typing import NamedTuple, Self, override
 from model import Beatmap
 from ui import IOUtils, Parser, Printer
 
-__all__ = ['CLIUtils', 'CommandParser', 'BeatmapPrinter']
+__all__ = ['CLIUtils', 'CommandParser', 'BeatmapPrinter', 'console']
 
+console = builtins
+console.print = print
+console.info = print
+console.success = print
+console.warning = print
+console.error = print
+console.debug = print
 
 class CLIUtils(IOUtils):
     """ The class implements the utility for the command line interface. """

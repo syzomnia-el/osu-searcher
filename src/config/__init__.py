@@ -7,6 +7,11 @@ from typing import TypedDict
 
 from ui import IOUtils
 
+try:
+    from ui.rich_cli import console
+except ModuleNotFoundError:
+    from ui.cli import console
+
 __all__ = ['Config', 'ConfigManager']
 
 _io = IOUtils
@@ -45,7 +50,7 @@ class Config(dict):
     def path(self, path: str) -> None:
         """ Sets the path in the config. """
         if not _io.is_valid_path(path):
-            print(f'invalid path:`{path}`')
+            console.error(f'invalid path:`{path}`')
             return
 
         self['path'] = path
@@ -102,7 +107,7 @@ class ConfigManager:
                 data = json.load(f)
                 self._config = Config(data)
         except (IOError, JSONDecodeError):
-            print('Invalid JSON file, reset the config.')
+            console.warning('Invalid JSON file, reset the config.')
             self.reset()
 
     def _write(self) -> None:

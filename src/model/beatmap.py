@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
@@ -154,5 +155,5 @@ class BeatmapManager:
             name = name[0] if name else ''
             return Beatmap(sid, artist, name)
         except ValueError:
-            print(f'Invalid beatmap filename: {filename}')
+            print(f'Invalid beatmap filename: {filename}', file=sys.stderr)
             return None
