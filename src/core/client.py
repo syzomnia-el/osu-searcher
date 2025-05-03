@@ -203,14 +203,15 @@ class Client:
 
     def _print_path(self) -> None:
         """ Prints the path of the beatmaps. """
+        count = len(self.beatmap_manager.beatmaps)
         if __EXIST_RICH__:
             output = Panel(
-                self.config_manager.config.path,
+                f'{self.config_manager.config.path} [grey70]([cyan]{count}[/])[/]',
                 title='Path',
                 border_style='blue'
             )
         else:
-            output = f'path: {self.config_manager.config.path}'
+            output = f'path: {self.config_manager.config.path} ({count})'
         console.print(output)
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
