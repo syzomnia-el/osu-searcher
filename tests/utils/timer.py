@@ -98,7 +98,7 @@ def execute_timer(funcs: set[Function], /, timer: Timer = None) -> list[TimerRes
     :return: The measurement results of each function
     """
     if not isinstance(funcs, set) or any(not callable(i) for i in funcs):
-        raise TypeError('`funcs` must be a set of no-argument callable objects.')
+        raise TypeError('`funcs` must be a set of callable objects.')
     if timer is None:
         timer = generate_timer()
     elif not callable(timer):
