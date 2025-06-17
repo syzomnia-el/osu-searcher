@@ -42,14 +42,14 @@ the startup.
 
 ## Command
 
-| Command                                                                                   | Description                       |
-|-------------------------------------------------------------------------------------------|-----------------------------------|
-| check                                                                                     | Check duplicate beatmaps          |
-| exit                                                                                      | Exit osu!searcher                 |
-| find *<font color=grey>[condition=]</font><font color=darkmagenta>&lt;keyword&gt;</font>* | Filter beatmaps by keywords       |
-| flush                                                                                     | Flush the beatmap data cache      |
-| list                                                                                      | List all local beatmaps           |
-| path                                                                                      | Modify the saved path of beatmaps |
+| Command                                                                                       | Description                       |
+|-----------------------------------------------------------------------------------------------|-----------------------------------|
+| check                                                                                         | Check duplicate beatmaps          |
+| exit                                                                                          | Exit osu!searcher                 |
+| find *<font color="grey">[condition=]</font><font color="darkmagenta">&lt;keyword&gt;</font>* | Filter beatmaps by keywords       |
+| flush                                                                                         | Flush the beatmap data cache      |
+| list                                                                                          | List all local beatmaps           |
+| path                                                                                          | Modify the saved path of beatmaps |
 
 ## License
 
