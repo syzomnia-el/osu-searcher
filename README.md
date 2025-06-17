@@ -40,14 +40,14 @@ osu!searcher 是一个为 [osu!](https://osu.ppy.sh) 开发的本地谱面查找
 
 ## 命令
 
-| **命令**                                                                                        | **描述**          |
-|-----------------------------------------------------------------------------------------------|-----------------|
-| check                                                                                         | 检查重复的谱面         |
-| exit                                                                                          | 退出 osu!searcher |
-| find *<font color="grey">[condition=]</font><font color="darkmagenta">&lt;keyword&gt;</font>* | 按关键词筛选谱面        |
-| flush                                                                                         | 刷新谱面信息缓存        |
-| list                                                                                          | 列出所有本地谱面        |
-| path                                                                                          | 修改谱面存储路径        |
+| **命令**                                                                       | **描述**          |
+|------------------------------------------------------------------------------|-----------------|
+| check                                                                        | 检查重复的谱面         |
+| exit                                                                         | 退出 osu!searcher |
+| find $$\textit{\color{grey}[condition=]\color{darkmagenta}&lt;keyword&gt;}$$ | 按关键词筛选谱面        |
+| flush                                                                        | 刷新谱面信息缓存        |
+| list                                                                         | 列出所有本地谱面        |
+| path                                                                         | 修改谱面存储路径        |
 
 ## 许可证
 
