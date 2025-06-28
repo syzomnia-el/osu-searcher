@@ -29,7 +29,7 @@ class ConditionType(Enum):
     @classmethod
     def __numbers__(cls) -> list[str]:
         """
-        Returns the list of all condition types.
+        Return the list of all condition types.
 
         :return: A list of condition types.
         """
@@ -63,7 +63,7 @@ class Beatmap:
         object.__setattr__(self, '_name_lower', self.name.lower())
 
     def __contains__(self, s: Condition) -> bool:
-        """ Returns whether a string belongs to the beatmap. """
+        """ Return whether a string belongs to the beatmap. """
         if isinstance(s, str):
             return any(s.lower() in attr for attr in (self.sid, self._artist_lower, self._name_lower))
 
@@ -77,15 +77,15 @@ class Beatmap:
         return all(v.lower() in getattr(self, k.value) for k, v in s.items())
 
     def __hash__(self) -> int:
-        """ Returns the hash value of the beatmap. """
+        """ Return the hash value of the beatmap. """
         return hash(int(self.sid))
 
     def __eq__(self, other: 'Beatmap') -> bool:
-        """ Returns whether the beatmap is equal to the other beatmap. """
+        """ Return whether the beatmap is equal to the other beatmap. """
         return self.sid == other.sid
 
     def __lt__(self, other: 'Beatmap') -> bool:
-        """ Compares the beatmap with the other beatmap by the name string. """
+        """ Compare the beatmap with the other beatmap by the name string. """
         return self.name < other.name
 
 
@@ -101,14 +101,14 @@ class BeatmapManager:
 
     def load(self, path: str = None) -> None:
         """
-        Loads beatmap data from the path.
+        Load beatmap data from the path.
 
-        :param path: The path to the Songs directory of osu! game.
+        :param path: The path to the Songs directory of the game osu!.
         """
         if not _io.is_valid_path(path):
             return
 
-        filenames = list(map(lambda x: x.name, os.scandir(path)))
+        filenames = [x.name for x in os.scandir(path)]
         if not filenames:
             return
 
@@ -117,10 +117,10 @@ class BeatmapManager:
 
     def filter(self, condition: Condition) -> list[Beatmap]:
         """
-        Filters beatmaps by the condition.
+        Filter beatmaps by the condition.
 
-        If condition is a string, it is treated as a keyword.
-        If condition is a dict, it is treated as a type-keyword pair.
+        If the condition is a string, it is treated as a keyword.
+        If the condition is a dict, it is treated as a type-keyword pair.
 
         The keyword is case-insensitive.
         If the keyword is an empty string, returns all beatmaps.
@@ -134,7 +134,7 @@ class BeatmapManager:
 
     def check(self) -> list[Beatmap]:
         """
-        Checks duplicated beatmaps by the sid.
+        Check duplicated beatmaps by the sid.
 
         :return: A list of beatmaps with the duplicated sid.
         """
@@ -143,7 +143,7 @@ class BeatmapManager:
     @staticmethod
     def _parse_beatmap(filename: str) -> Beatmap | None:
         """
-        Parses beatmap data from the filename.
+        Parse beatmap data from the filename.
 
         :param filename: The filename of the beatmap.
         :return: A Beatmap object parsed from the filename.

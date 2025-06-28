@@ -35,7 +35,7 @@ class Client:
 
     Methods:
         run: The main entry point. Loop until the user inputs `exit`, or an error occurs.
-        shutdown: Exits the program.
+        shutdown: Exit the program.
     """
     _COMMANDS: dict[str, Callable]
 
@@ -45,7 +45,7 @@ class Client:
     _printer: Printer = BeatmapRichPrinter() if __EXIST_RICH__ else BeatmapPrinter()
 
     def __init__(self) -> None:
-        """ Initializes the class and load the config. """
+        """ Initialize the class and load the config. """
         self._COMMANDS = {
             'check': self._check,
             'exit': self.exit,
@@ -81,7 +81,7 @@ class Client:
 
     @beatmap_manager.setter
     def beatmap_manager(self, beatmap_manager: BeatmapManager) -> None:
-        """ Sets the beatmap manager and load the beatmaps. """
+        """ Set the beatmap manager and load the beatmaps. """
         if not beatmap_manager or not isinstance(beatmap_manager, BeatmapManager):
             beatmap_manager = BeatmapManager()
 
@@ -94,32 +94,20 @@ class Client:
 
     @staticmethod
     def exit(code: int = 0) -> NoReturn:
-        """ Exits the program. """
+        """ Exit the program. """
         _io.clear_screen()
         _io.exit(code)
 
     def _check(self) -> None:
-        """
-        Checks the duplicate beatmaps and prints the result as below.
-
-            sid   | artist   | name  \n
-            \------------------------\n
-            <sid> | <artist> | <name>\n
-            total: <total_number>
-        """
+        """ Check the duplicate beatmaps and prints the result. """
         self._flush()
         self._print_beatmaps(self.beatmap_manager.check())
 
     def _find(self, condition: str = '') -> None:
         """
-        Finds beatmaps by a keyword, and prints the result as below.
+        Find beatmaps by a keyword, and prints the result.
         If the keyword is not given, ask the user to input.
         Use `condition=keyword` for specific conditions filtering including sid, name or artist.
-
-            sid   | artist   | name  \n
-            \------------------------\n
-            <sid> | <artist> | <name>\n
-            total: <total_number>
 
        :param condition: The condition to find.
         """
@@ -138,25 +126,25 @@ class Client:
         self._print_beatmaps(self.beatmap_manager.filter(condition))
 
     def _flush(self) -> None:
-        """ Flushes the config and beatmap data cache. """
+        """ Flush the config and beatmap data cache. """
         self.config_manager = ConfigManager()
 
     def _list(self) -> None:
-        """ Lists all the beatmaps. """
+        """ List all the beatmaps. """
         self._print_beatmaps(self.beatmap_manager.beatmaps)
 
     def _path(self) -> None:
-        """ Modifies the saved path of the beatmaps. """
+        """ Modify the saved path of the beatmaps. """
         self._set_path()
         self._flush()
 
     def _prompt(self) -> None:
         """
-        Prints the prompt.
+        Print the prompt as below.
 
-        path: <path>\n
-        command:\n
-        \- check | exit | find [condition=]<keyword> | flush | list | path`
+            path: <path>
+            command:
+            - check | exit | find [condition=]<keyword> | flush | list | path`
         """
         self._print_path()
         if __EXIST_RICH__:
@@ -179,7 +167,7 @@ class Client:
         console.print(output)
 
     def _parse_command(self) -> None:
-        """ Parses the command and executes the corresponding method. """
+        """ Parse the command and executes the corresponding method. """
         _io.clear_screen()
         self._prompt()
         # parse the command from the user input.
@@ -187,22 +175,21 @@ class Client:
         self._execute_command(command, args)
 
     def _execute_command(self, command: str, args: list[str]) -> None:
-        """ Executes the corresponding method based on the command. """
+        """ Execute the corresponding method based on the command. """
         if command not in self._COMMANDS:
             return
         if not args:
             args = ['']
 
         method = self._COMMANDS[command]
-        match command:
-            case 'find':
-                condition = args[0]
-                method(condition)
-            case _:
-                method()
+        if command == 'find':
+            condition = args[0]
+            method(condition)
+        else:
+            method()
 
     def _print_path(self) -> None:
-        """ Prints the path of the beatmaps. """
+        """ Print the path of the beatmaps. """
         count = len(self.beatmap_manager.beatmaps)
         if __EXIST_RICH__:
             output = Panel(
@@ -215,12 +202,12 @@ class Client:
         console.print(output)
 
     def _print_beatmaps(self, beatmaps: list[Beatmap]) -> None:
-        """ Prints the beatmaps. """
+        """ Print the beatmaps. """
         self._printer.print(beatmaps)
         _io.pause()
 
     def _set_path(self) -> None:
-        """ Sets the path of the beatmaps. If the user inputs `q`, the method will return. """
+        """ Set the path of the beatmaps. If the user inputs `q`, the method will return. """
         while True:
             _io.clear_screen()
             self._print_path()

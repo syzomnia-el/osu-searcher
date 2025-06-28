@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-import os
+import os.path
 import sys
 from json import JSONDecodeError
 from typing import TypedDict
@@ -22,7 +22,7 @@ class ConfigDict(TypedDict):
     The class is a type hint of the config.
 
     Attributes:
-        path: The path to the Songs directory of osu! game.
+        path: The path to the Songs directory of the game osu!.
     """
     path: str | None
 
@@ -67,21 +67,21 @@ class ConfigManager:
         config: The config of the manager.
 
     Methods:
-        load: Loads the config from the file.
-        reset: Resets the config.
-        save: Saves the config to the file.
+        load: Load the config from the file.
+        reset: Reset the config.
+        save: Save the config to the file.
     """
     CONFIG_FILE: str = os.path.join(sys.path[0], 'config.json')
     _config: Config | None = None
 
     @property
     def config(self) -> Config | None:
-        """ Returns the config. """
+        """ Return the config. """
         return self._config
 
     @config.setter
     def config(self, config: Config) -> None:
-        """ Sets the config. """
+        """ Set the config. """
         if not config or not isinstance(config, Config):
             config = Config()
 
@@ -89,19 +89,19 @@ class ConfigManager:
         self.save()
 
     def load(self) -> None:
-        """ Loads the config from the file. """
+        """ Load the config from the file. """
         self._read()
 
     def save(self) -> None:
-        """ Saves the config to the file. """
+        """ Save the config to the file. """
         self._write()
 
     def reset(self) -> None:
-        """ Resets the config. """
+        """ Reset the config. """
         self.config = Config()
 
     def _read(self) -> None:
-        """ Reads the config from the JSON file."""
+        """ Read the config from the JSON file."""
         try:
             with open(self.CONFIG_FILE, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -111,7 +111,6 @@ class ConfigManager:
             self.reset()
 
     def _write(self) -> None:
-        """ Writes the config to the JSON file. """
+        """ Write the config to the JSON file. """
         with open(self.CONFIG_FILE, 'w', encoding='utf-8') as f:
-            # noinspection PyTypeChecker
             json.dump(self._config, f)

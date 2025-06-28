@@ -32,12 +32,12 @@ class CLIUtils(IOUtils):
 
     @staticmethod
     def clear_screen() -> None:
-        """ Clears the screen. """
+        """ Clear the screen. """
         os.system('cls' if os.name == 'nt' else 'clear')
 
     @staticmethod
     def pause() -> None:
-        """ Pauses the program until the user presses the Enter key. """
+        """ Pause the program until the user presses the Enter key. """
         input('Press Enter to continue...')
 
 
@@ -92,11 +92,11 @@ class BeatmapPrinter(Printer):
     @override
     def print(self, output: list[Beatmap]) -> None:
         """
-        Prints the beatmaps as below.
+        Print the beatmaps as below.
 
-            sid    | artist   | name   \n
-            \--------------------------\n
-            [<sid> | <artist> | <name>]\n
+            sid    | artist   | name
+            ---------------------------
+            [<sid> | <artist> | <name>]
             ...
             total: <total_number>
 

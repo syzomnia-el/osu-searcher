@@ -56,12 +56,12 @@ class CLIRichUtils(IOUtils):
 
     @staticmethod
     def clear_screen() -> None:
-        """ Clears the screen. """
+        """ Clear the screen. """
         os.system('cls' if os.name == 'nt' else 'clear')
 
     @staticmethod
     def pause() -> None:
-        """ Pauses the program until the user presses the Enter key. """
+        """ Pause the program until the user presses the Enter key. """
         console.input('[white]Press Enter to continue...[/]')
 
 
@@ -115,7 +115,7 @@ class BeatmapRichPrinter(Printer):
 
     @override
     def print(self, output: list[Beatmap]) -> None:
-        """ Prints the beatmaps. """
+        """ Print the beatmaps. """
         if not isinstance(output, list) or not all(isinstance(i, Beatmap) for i in output):
             console.error('Invalid beatmaps.')
             return
