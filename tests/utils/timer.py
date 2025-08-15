@@ -37,10 +37,6 @@ def _timer(
         raise TypeError('`repeat` must be a positive integer.')
     if not isinstance(number, int) or number <= 0:
         raise TypeError('`number` must be a positive integer.')
-    if not isinstance(silent, bool):
-        raise TypeError('`silent` must be a boolean.')
-    if not callable(func):
-        raise TypeError('`func` must be a callable object.')
 
     curried_func = partial(func, *args, **kwargs)
     times = timeit.repeat(curried_func, repeat=repeat, number=number)
@@ -101,8 +97,6 @@ def execute_timer(funcs: set[Function], /, timer: Timer = None) -> list[TimerRes
         raise TypeError('`funcs` must be a set of callable objects.')
     if timer is None:
         timer = generate_timer()
-    elif not callable(timer):
-        raise TypeError('`timer` must be a callable object.')
 
     with ProcessPoolExecutor() as executor:
         try:

@@ -67,8 +67,6 @@ class Beatmap:
         if isinstance(s, str):
             return any(s.lower() in attr for attr in (self.sid, self._artist_lower, self._name_lower))
 
-        if not isinstance(s, dict):
-            raise TypeError(f'Expected str or dict[ConditionType, str], got {type(s).__name__}')
         if any(not isinstance(key := k, ConditionType) for k in s.keys()):
             raise TypeError(f'Invalid key, expected ConditionType, got {type(key).__name__}')
         if any(not isinstance(value := v, str) for v in s.values()):

@@ -53,11 +53,11 @@ class CommandParser(Parser):
     Using the standard library argparse to parse the user input.
     """
     _parser: ArgumentParser
+    _io = CLIUtils
 
     def __new__(cls) -> Self:
         """
         Initialize the parser.
-
         User input format: <key> [arg1] [arg2] ...
         """
         cls._parser = ArgumentParser()
@@ -78,7 +78,7 @@ class CommandParser(Parser):
     @override
     def parse(self) -> Command:
         """ Parse the user input and return the command. """
-        input_args = CLIUtils.input().split()
+        input_args = self._io.input().split()
         args = self._parser.parse_args(input_args)
         return Command(args.key, args.args)
 

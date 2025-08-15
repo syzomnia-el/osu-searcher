@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from collections.abc import Callable
-from typing import NoReturn
 
 from config import ConfigManager
 from model import Beatmap, BeatmapManager
@@ -88,12 +87,12 @@ class Client:
         self._beatmap_manager = beatmap_manager
         self._beatmap_manager.load(self.config_manager.config.path)
 
-    def run(self) -> NoReturn:
+    def run(self) -> None:
         """ The main entry point of the program. """
         self._parse_command()
 
     @staticmethod
-    def exit(code: int = 0) -> NoReturn:
+    def exit(code: int = 0) -> None:
         """ Exit the program. """
         _io.clear_screen()
         _io.exit(code)

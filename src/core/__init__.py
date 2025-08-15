@@ -20,6 +20,6 @@ class OSSApplication:
             except IOError:
                 self._client.exit(4)
 
-    def shutdown(self) -> NoReturn:
+    def shutdown(self) -> None:
         """ Exit the application."""
         self._client.exit(0)

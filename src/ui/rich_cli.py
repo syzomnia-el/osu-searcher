@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-from argparse import ArgumentParser
 from functools import partial
-from typing import NamedTuple, Self, override
+from typing import Self, override
 
 from model import Beatmap
-from ui import IOUtils, Parser, Printer
+from ui import IOUtils, Printer
+from ui.cli import CommandParser
 
 try:
     from rich import traceback
@@ -65,46 +65,13 @@ class CLIRichUtils(IOUtils):
         console.input('[white]Press Enter to continue...[/]')
 
 
-class Command(NamedTuple):
-    """ The class represents a command. """
-    key: str = ''
-    args: list[str] | None = None
-
-
-class CommandRichParser(Parser):
+class CommandRichParser(CommandParser):
     """
     The class implements the parser for the command line interface.
     Using the standard library `argparse` to parse the user input.
     Using the library `rich` to print rich-text.
     """
-    _parser: ArgumentParser
-
-    def __new__(cls) -> Self:
-        """
-        Initialize the parser.
-        User input format: <key> [arg1] [arg2] ...
-        """
-        cls._parser = ArgumentParser()
-        cls._parser.add_argument(
-            'key',
-            type=str,
-            help='The command key.',
-            choices=['check', 'exit', 'find', 'flush', 'list', 'path']
-        )
-        cls._parser.add_argument(
-            'args',
-            nargs='*',
-            help='The command arguments.'
-        )
-        cls._parser.error = lambda _: Command()
-        return super().__new__(cls)
-
-    @override
-    def parse(self) -> Command:
-        """ Parse the user input and return the command. """
-        input_args = CLIRichUtils.input().split()
-        args = self._parser.parse_args(input_args)
-        return Command(args.key, args.args)
+    _io = CLIRichUtils
 
 
 class BeatmapRichPrinter(Printer):
